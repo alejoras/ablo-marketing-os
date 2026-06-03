@@ -1,7 +1,13 @@
 #!/bin/bash
-# Weekly refresh for the Ablo Studio Marketing OS.
+# Refresh for the Ablo Studio Marketing OS (MANUAL-RUN copy).
 # Regenerates data.js from content.json + live sources, then commits and pushes
-# so GitHub Pages redeploys. Run by launchd (com.alejo.ablo-marketing-os.weekly).
+# so GitHub Pages redeploys.
+#
+# NOTE: launchd does NOT run this file. macOS TCC blocks launchd from executing
+# scripts inside ~/Documents (it failed with exit 126 "Operation not permitted").
+# The unattended/launchd entrypoint is ~/.local/bin/ablo-marketing-os-refresh.sh
+# (outside the TCC-protected folder). Keep the two in sync. Run this one by hand
+# from a Terminal that already has Documents access.
 set -uo pipefail
 
 DIR="/Users/alejo/Documents/Claude/ablo-marketing-os"

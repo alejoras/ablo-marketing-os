@@ -3,3 +3,4 @@
 .launchd.err.log
 .DS_Store
 __pycache__/
+.claude-flow/

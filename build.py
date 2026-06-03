@@ -80,7 +80,7 @@ def fetch_experiments(env):
         req = urllib.request.Request(url, headers={"Authorization": f"Bearer {key}"})
         with urllib.request.urlopen(req, timeout=30) as r:
             payload = json.loads(r.read().decode())
-    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError) as e:
         log(f"PostHog fetch failed ({e}); falling back to curated experiments")
         return []
 
@@ -223,7 +223,7 @@ def _hogql(env, query):
         )
         with urllib.request.urlopen(req, timeout=60) as r:
             return json.loads(r.read().decode()).get("results", [])
-    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError) as e:
         log(f"HogQL failed ({e})")
         return None
 
@@ -539,7 +539,7 @@ def fetch_clickup(env):
         req = urllib.request.Request(url, headers={"Authorization": key})
         with urllib.request.urlopen(req, timeout=30) as r:
             tasks = json.loads(r.read().decode()).get("tasks", [])
-    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError) as e:
         log(f"ClickUp fetch failed ({e})")
         return None
 
@@ -592,9 +592,30 @@ def fetch_instagram(env):
         return {"username": d.get("username"), "followers": d.get("followers_count"),
                 "posts": d.get("media_count"), "source": "Meta Graph · live",
                 "canPost": False, "postNote": "Posting + post-level engagement need an IG token with instagram_content_publish scope (the META_IG_TOKEN is expired, refresh it to enable agent posting)."}
-    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError) as e:
         log(f"Instagram fetch failed ({e})")
         return None
+
+
+# ------------------------------------------------------------- conversions ---
+def fetch_paying(env):
+    """Distinct Studio self-serve paying customers, from the PostHog purchase
+    event. That event only fires inside Studio, so it is inherently scoped to
+    self-serve, no Stripe charge filtering needed. None on failure (KPI then
+    falls back to its curated value)."""
+    try:
+        rows = _hogql(env, "SELECT count(DISTINCT person_id) FROM events WHERE event = 'purchase_completed'")
+    except Exception as e:  # noqa: BLE001 -- never let a slow/failed pull crash the build
+        log(f"Conversions fetch failed ({e}); KPI falls back to curated")
+        return None
+    if not rows:
+        return None
+    try:
+        paying = int(rows[0][0])
+    except (IndexError, TypeError, ValueError):
+        return None
+    log(f"Conversions: {paying} paying customer(s) via PostHog purchase_completed")
+    return paying
 
 
 # ----------------------------------------------------------------- channels --
@@ -755,6 +776,72 @@ def snapshot_history(env, funnel, meta_live, lifecycle, instagram=None):
     HISTORY.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n")
     log(f"history: {len(rows)} day(s) ({dates[0] if dates else '-'} → {today})")
     return {"rows": rows[-120:], "updated": today, "phLive": bool(rows_ph)}
+
+
+# ----------------------------------------------------------------- learning --
+# Self-improvement memory. state/lessons.jsonl is an append-only, git-tracked
+# ledger the marketing-os-refresh agent writes: falsifiable `prediction` records
+# and durable `lesson` records. build.py reads it back so every run starts with
+# what past runs learned, computes the agent's calibration (were its bets right?),
+# and flags predictions whose horizon has elapsed and need resolving. This is the
+# deterministic surfacing half of the predict→observe→score→learn loop; the agent
+# does the judging. Degrades to an empty structure if the ledger is missing.
+LESSONS = HERE / "state" / "lessons.jsonl"
+
+_VERDICT_PTS = {"hit": 1.0, "partial": 0.5, "miss": 0.0}
+
+
+def load_learning(today=None):
+    out = {
+        "lessons": [],
+        "openPredictions": [],
+        "dueForReview": [],
+        "calibration": {"n": 0, "hits": 0, "hitRate": None},
+        "counts": {"lessons": 0, "predictions": 0, "resolved": 0, "open": 0},
+    }
+    if not LESSONS.exists():
+        return out
+    today = today or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    lessons, preds = [], []
+    for line in LESSONS.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            log(f"lessons.jsonl: skipped unparseable line")
+            continue
+        kind = rec.get("type")
+        if kind == "lesson":
+            lessons.append(rec)
+        elif kind == "prediction":
+            preds.append(rec)
+
+    lessons.sort(key=lambda r: r.get("date", ""), reverse=True)
+    open_preds = [p for p in preds if p.get("status") == "open"]
+    resolved = [p for p in preds if p.get("status") == "resolved"]
+
+    pts = [_VERDICT_PTS[p["verdict"]] for p in resolved if p.get("verdict") in _VERDICT_PTS]
+    n = len(pts)
+    hits = sum(1 for p in resolved if p.get("verdict") == "hit")
+
+    out["lessons"] = lessons[:12]
+    out["openPredictions"] = sorted(open_preds, key=lambda p: p.get("due", "9999"))
+    # A bet whose horizon has elapsed but is still open: the agent must resolve it.
+    out["dueForReview"] = [p for p in open_preds if p.get("due", "9999") <= today]
+    out["calibration"] = {
+        "n": n,
+        "hits": hits,
+        "hitRate": round(sum(pts) / n, 2) if n else None,
+    }
+    out["counts"] = {
+        "lessons": len(lessons),
+        "predictions": len(preds),
+        "resolved": len(resolved),
+        "open": len(open_preds),
+    }
+    return out
 
 
 # ---------------------------------------------------- before/after ship ------
@@ -940,9 +1027,14 @@ def build():
     # ClickUp task feed (source of truth for action items) + IG organic stats.
     clickup = fetch_clickup(env)
     instagram = fetch_instagram(env)
+    paying = fetch_paying(env)
 
     # Daily time-series — snapshot today and rewrite history.jsonl.
     history = snapshot_history(env, funnel, meta_live, lifecycle, instagram)
+
+    # Self-improvement memory — read the agent's own ledger back into the OS so
+    # every run starts with what past runs learned (and what bets are due to score).
+    learning = load_learning()
 
     # Activation = same-user signup -> try-on (the aha), straight from the funnel.
     activation = "~47%"
@@ -981,7 +1073,10 @@ def build():
         pass
     signups_value = str(total_signups) if total_signups is not None else (str(signups) if signups is not None else "66")
     kpis = [
-        {"label": "Paying customers", "value": "0 / 5", "sub": "the brag · CAC < $300", "tone": "accent"},
+        # Paying customers from the PostHog purchase event (Studio-scoped by nature).
+        {"label": "Paying customers",
+         "value": f"{paying} / 5" if paying is not None else "0 / 5",
+         "sub": "the brag · CAC < $300", "tone": "accent"},
         {"label": "Lifetime signups", "value": signups_value, "sub": "all-time, all sources", "tone": "default"},
         {"label": "Cost per signup", "value": meta_live["cpl"] or "$21.04", "sub": "paid · target ≤ $20", "tone": "default"},
         {"label": "Activation", "value": activation, "sub": "signup → try-on · target ≥ 50%", "tone": "default"},
@@ -1014,6 +1109,7 @@ def build():
         "clickup": clickup,
         "instagram": instagram,
         "history": history,
+        "learning": learning,
         "refreshedSources": {
             "posthog": posthog_live,
             "meta": signups is not None,
@@ -1033,6 +1129,12 @@ def build():
     OUT.write_text(banner + "window.ABLO_OS = " + json.dumps(content, ensure_ascii=False, indent=2) + ";\n")
     log(f"wrote {OUT.name} · updated {content['meta']['updated']}")
     log(f"posthog={'live' if posthog_live else 'cached'} meta={'live' if signups is not None else 'cached'}")
+    cal = learning["calibration"]
+    log(
+        f"learning: {learning['counts']['lessons']} lessons · "
+        f"calibration {cal['hitRate'] if cal['hitRate'] is not None else 'n/a'} (n={cal['n']}) · "
+        f"{len(learning['dueForReview'])} prediction(s) due for review"
+    )
 
 
 if __name__ == "__main__":

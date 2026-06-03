@@ -1,0 +1,22 @@
+# Ablo Marketing OS — learning ledger (append-only, git-tracked).
+# The marketing-os-refresh agent reads this FIRST every run and writes to it LAST.
+# This is how the OS compounds judgment over time: predict -> observe -> score -> distill.
+#
+# Two record types, one JSON object per line:
+#
+#  prediction  a falsifiable bet logged when you ship a fix or conclude an experiment.
+#    {"type":"prediction","id":"PRED-YYYY-MM-DD-slug","date":"YYYY-MM-DD","action":"...",
+#     "linked":"OS-... | PH-#### | CC-rank-N","metric":"<history.jsonl key>","baseline":N,
+#     "predicted":N,"horizon_days":N,"due":"YYYY-MM-DD","rationale":"...","status":"open"}
+#   when its horizon elapses, resolve it in place:
+#     ...,"status":"resolved","actual":N,"verdict":"hit|partial|miss","resolved_date":"YYYY-MM-DD","lesson_id":"LES-..."
+#
+#  lesson  a durable heuristic distilled from a resolved bet or the weekly audit.
+#    {"type":"lesson","id":"LES-YYYY-MM-DD-slug","date":"YYYY-MM-DD","lesson":"...",
+#     "evidence":"...","confidence":"high|med|low","tags":["funnel","paid",...],"source_pred":"PRED-..."}
+#
+# Rules: never rewrite history except to resolve an open prediction. Keep lessons to one
+# sentence, lead with the result, cite evidence. metric must be a real history.jsonl key.
+{"type":"prediction","id":"PRED-2026-05-20-google-signup","date":"2026-05-20","action":"Make Google the primary signup option (OS-SIGNUP-GOOGLE)","linked":"OS-SIGNUP-GOOGLE","metric":"signup_completion_rate","baseline":33,"predicted":42,"horizon_days":10,"due":"2026-05-30","rationale":"Google one-tap removes password friction at the highest-drop step.","status":"resolved","actual":44,"verdict":"hit","resolved_date":"2026-05-31","lesson_id":"LES-2026-05-31-friction","note":"Beat the call: predicted +9pp, landed +11pp."}
+{"type":"lesson","id":"LES-2026-05-31-friction","date":"2026-05-31","lesson":"Removing auth friction at the signup step is the highest-ROI funnel move so far: Google-primary lifted completion 33% to 44% (+11pp).","evidence":"OS-SIGNUP-GOOGLE before/after; PRED-2026-05-20-google-signup resolved hit.","confidence":"high","tags":["funnel","signup","friction"],"source_pred":"PRED-2026-05-20-google-signup"}
+{"type":"lesson","id":"LES-2026-06-03-cpl","date":"2026-06-03","lesson":"The current signup-launch flight runs CPL ~$7.79, roughly 3x cheaper than the prior flight's $21.04. Keep budget on the current creative+targeting before testing new angles.","evidence":"history.jsonl 2026-06-03 cpl=7.79 vs prior-flight lifetime CPL $21.04 (.refresh.log 2026-06-02).","confidence":"med","tags":["paid","meta","cpl"]}

@@ -1139,6 +1139,25 @@
         sectionHead('For Agents','Read this first', a.intro),
         h('div',{class:'callout'}, h('div',{class:'tag'},'What this is'), h('p',{},a.what)),
         h('div',{class:'callout',style:'margin-top:14px'}, h('div',{class:'tag'},'The ultimate goal'), h('p',{},a.goal)),
+        (()=>{ const ln=L.learning||{}, cal=ln.calibration||{}, lessons=ln.lessons||[], counts=ln.counts||{};
+          if(!lessons.length && !counts.predictions) return null;
+          const pct = cal.hitRate!=null ? Math.round(cal.hitRate*100)+'% hit rate' : 'no scored bets yet';
+          return frag(
+            blocktitle('What the OS has learned · self-improvement'),
+            h('div',{class:'callout'}, h('div',{class:'tag'},'How it compounds'),
+              h('p',{},'Every fix becomes a falsifiable prediction, scored against the real numbers when its horizon elapses, then distilled into a lesson the next run reads first. Calibration is the scoreboard.')),
+            h('div',{style:'margin:12px 0;display:flex;gap:8px;flex-wrap:wrap'},
+              chip('Calibration: '+pct+' (n='+(cal.n||0)+')', (cal.hitRate!=null&&cal.hitRate>=0.5)?'accent':'muted'),
+              chip((counts.open||0)+' open bet'+(counts.open===1?'':'s'),'default'),
+              (ln.dueForReview&&ln.dueForReview.length)? chip(ln.dueForReview.length+' due to score','muted') : null),
+            lessons.length? h('div',{class:'stack'}, lessons.slice(0,6).map(x=>card({cls:'flat',children:[
+              h('p',{style:'margin:0 0 8px;color:var(--text)'}, x.lesson),
+              h('div',{style:'display:flex;gap:8px;flex-wrap:wrap;align-items:center'},
+                chip(x.confidence||'—', x.confidence==='high'?'accent':'muted'),
+                (x.tags||[]).length? h('span',{class:'small',style:'color:var(--muted)'}, (x.tags||[]).join(' · ')) : null)
+            ]}))) : null
+          );
+        })(),
         blocktitle('How to use it'),
         kvList((a.howToUse||[]).map(x=>({k:x.k,v:x.v}))),
         blocktitle('Canonical facts'),

@@ -1216,12 +1216,12 @@
 
     // footer
     const foot=document.getElementById('foot');
-    const phLive=(L.refreshedSources||{}).posthog, metaLive=(L.refreshedSources||{}).meta;
-    foot.append(
-      h('div',{class:'row'}, h('span',{class:'dot '+(metaLive?'live':'cached')}), 'Meta '+(metaLive?'live':'cached')),
-      h('div',{class:'row'}, h('span',{class:'dot '+(phLive?'live':'cached')}), 'PostHog '+(phLive?'live':'cached')),
-      h('div',{class:'stamp'}, 'Updated '+((D.meta||{}).updated||'· ')+' · auto-refreshes')
-    );
+    const rs=L.refreshedSources||{};
+    // every connected source, live (green) when its last pull succeeded else cached
+    const FOOT_SRC=[['posthog','PostHog'],['meta','Meta'],['klaviyo','Klaviyo'],['clickup','ClickUp'],['instagram','Instagram']];
+    FOOT_SRC.forEach(([k,label])=> foot.append(
+      h('div',{class:'row'}, h('span',{class:'dot '+(rs[k]?'live':'cached')}), label+' '+(rs[k]?'live':'cached'))));
+    foot.append(h('div',{class:'stamp'}, 'Updated '+((D.meta||{}).updated||'· ')+' · auto-refreshes'));
 
     const view=document.getElementById('view');
     const crumb=document.getElementById('crumb');

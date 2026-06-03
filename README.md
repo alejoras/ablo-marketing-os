@@ -17,28 +17,9 @@ link publicly.
 | Brand | Messaging & Perceptions · Brand Voice (with a copy-paste voice card for agents) |
 | Growth | **Funnel** (PostHog) · **Lifecycle** (Klaviyo) · **Channels** (live UTM attribution) · **Content Calendar** · Experiments · Campaigns · Content |
 
-## Hosting & the Connections page (Railway)
+## Hosting (static, GitHub Pages)
 
-The OS runs two ways:
-- **Static (today):** GitHub Pages serves `index.html` + `data.js`; the daily `build.py` runs on the Mac (launchd) and pushes. Tokens live in `~/.claude/.env`, never published.
-- **Server (`server.py`, for Railway):** a stdlib web server that serves the dashboard **and** a password-gated **`/connections`** page to view, live-test and edit every token, with a "Refresh data now" button. It runs `build.py` itself (daily + on demand) and writes `data.js`/`history.jsonl` to a volume. No pip installs.
-
-Why a server is needed for token editing: the static public site has no backend and is world-readable, so it can't hold or edit secrets. `server.py` keeps secrets server-side (process env + an editable `tokens.env` on the volume), gated by `ADMIN_PASSWORD`.
-
-**Deploy to Railway** (one-time; needs your Railway login — the repo's `RAILWAY_TOKEN_STAGING` is scoped to the *Gudink* project, so it can't create this one):
-
-```bash
-railway login                      # interactive
-railway init                       # new project, e.g. "ablo-marketing-os"
-railway volume add --mount-path /data
-railway variables --set OS_DATA_DIR=/data --set ADMIN_PASSWORD='<choose-a-strong-one>'
-# then add the source tokens (paste from ~/.claude/.env in the Railway → Variables tab):
-#   POSTHOG_PERSONAL_API_KEY, POSTHOG_PROJECT_ID, POSTHOG_HOST,
-#   KLAVIYO_API_KEY_ABLO, META_ADS_TOKEN, CLICKUP_TOKEN_ABLO  (+ STRIPE_API_KEY when you have it)
-railway up
-```
-
-After deploy: open `https://<your-app>.up.railway.app/connections`, log in with `admin` + your `ADMIN_PASSWORD`, and you have an in-app place to read/test/change every token. The dashboard stays at `/`.
+Static only, no backend. GitHub Pages serves `index.html` + `data.js`. The daily `build.py` runs on the Mac (launchd, see below), regenerates `data.js` + `history.jsonl`, and pushes. Tokens live in `~/.claude/.env` and are never published. The site is a `noindex` dashboard fed by the local daily job. (A `server.py` / Railway path with an in-app token editor was prototyped and then dropped on 2026-06-03 to keep the system lean; the static path is the single source of truth.)
 
 ## Connected sources
 

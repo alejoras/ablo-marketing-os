@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T06:25:18.038931+00:00"
+    "updatedISO": "2026-06-03T07:05:35.207143+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -2630,7 +2630,7 @@ window.ABLO_OS = {
         "metric": "signup-modal completion",
         "started": "May 27, 2026",
         "hypothesis": "Promoting Continue with Google to the primary action and dropping email/password (magic link kept as a secondary link) lifts signup-modal completion. The magic-link path forced an inbox round-trip most people never returned from. Shipped May 27 (Google added), May 28 (email/password removed).",
-        "signal": "Modal completion before May 27: 33% (22/66). After: 44% (34/77). Change: +11 pts."
+        "signal": "Modal completion before May 27: 33% (22/66). After: 44% (34/78). Change: +10 pts."
       }
     ],
     "meta": {
@@ -2687,10 +2687,10 @@ window.ABLO_OS = {
           "sub": "$pageview",
           "group": "Acquire",
           "counts": {
-            "d7": 327,
-            "d30": 755,
-            "d90": 755,
-            "all": 755
+            "d7": 328,
+            "d30": 756,
+            "d90": 756,
+            "all": 756
           }
         },
         {
@@ -2712,10 +2712,10 @@ window.ABLO_OS = {
           "sub": "signup_modal_opened",
           "group": "Acquire",
           "counts": {
-            "d7": 76,
-            "d30": 149,
-            "d90": 149,
-            "all": 149
+            "d7": 77,
+            "d30": 150,
+            "d90": 150,
+            "all": 150
           }
         },
         {
@@ -3040,7 +3040,7 @@ window.ABLO_OS = {
         },
         {
           "channel": "Meta Ads",
-          "users": 410,
+          "users": 412,
           "signups": 17,
           "tryons": 5,
           "checkouts": 0,
@@ -3080,12 +3080,21 @@ window.ABLO_OS = {
       "updated": "June 3, 2026",
       "listUrl": "https://app.clickup.com/9003194404/v/li/901415977874",
       "counts": {
-        "in progress": 5,
-        "to do": 23,
-        "done": 14,
-        "review": 5
+        "in progress": 6,
+        "to do": 20,
+        "done": 15,
+        "review": 6
       },
       "open": [
+        {
+          "name": "Build paid-conversion (post-AHA) Klaviyo flow",
+          "status": "in progress",
+          "color": "#1090e0",
+          "type": "custom",
+          "url": "https://app.clickup.com/t/86ba70be6",
+          "due": "",
+          "assignee": "Alejo Escrivá"
+        },
         {
           "name": "Monday outreach: contact the enriched Ablo Studio signups",
           "status": "in progress",
@@ -3150,15 +3159,6 @@ window.ABLO_OS = {
           "assignee": "Alejo Escrivá"
         },
         {
-          "name": "Daily ads report via email (Hermes is OUT of scope)",
-          "status": "to do",
-          "color": "#87909e",
-          "type": "open",
-          "url": "https://app.clickup.com/t/86ba8vjqk",
-          "due": "",
-          "assignee": "Alejo Escrivá"
-        },
-        {
           "name": "Autopilot v4: expand autonomous decisioning (creatives + ad sets)",
           "status": "to do",
           "color": "#87909e",
@@ -3177,20 +3177,20 @@ window.ABLO_OS = {
           "assignee": "Alejo Escrivá"
         },
         {
-          "name": "Build Wave 3 campaign plan — small US apparel/fashion brands",
-          "status": "to do",
-          "color": "#87909e",
-          "type": "open",
-          "url": "https://app.clickup.com/t/86ba823v7",
-          "due": "",
-          "assignee": "Alejo Escrivá"
-        },
-        {
           "name": "Help Josh build the demand-testing step in his automation",
           "status": "to do",
           "color": "#87909e",
           "type": "open",
           "url": "https://app.clickup.com/t/86ba823dh",
+          "due": "",
+          "assignee": "Alejo Escrivá"
+        },
+        {
+          "name": "Cross-device PostHog attribution: distinct_id through magic-link URL",
+          "status": "to do",
+          "color": "#87909e",
+          "type": "open",
+          "url": "https://app.clickup.com/t/86ba2wp4t",
           "due": "",
           "assignee": "Alejo Escrivá"
         }
@@ -3389,9 +3389,9 @@ window.ABLO_OS = {
         },
         {
           "date": "2026-06-03",
-          "landed": 20,
-          "engaged": 4,
-          "modal": 4,
+          "landed": 23,
+          "engaged": 5,
+          "modal": 5,
           "signups": 1,
           "models": 0,
           "imports": 0,

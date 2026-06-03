@@ -189,12 +189,260 @@ def fetch_meta():
     return meta
 
 
+# --------------------------------------------------------------- PostHog HQL --
+def _hogql(env, query):
+    """Run a HogQL query, return result rows (list of lists). None on failure."""
+    key = env.get("POSTHOG_PERSONAL_API_KEY")
+    pid = env.get("POSTHOG_PROJECT_ID", "419152")
+    if not key:
+        return None
+    host = env.get("POSTHOG_HOST", "")
+    region = "eu" if "eu" in host.lower() else "us"
+    url = f"https://{region}.posthog.com/api/projects/{pid}/query/"
+    body = json.dumps({"query": {"kind": "HogQLQuery", "query": query}}).encode()
+    try:
+        req = urllib.request.Request(
+            url, data=body,
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.loads(r.read().decode()).get("results", [])
+    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+        log(f"HogQL failed ({e})")
+        return None
+
+
+# Canonical happy-path stage -> events. Keys MUST match funnelCurated stages.
+FUNNEL_STAGES = [
+    ("land",     ["$pageview"]),
+    ("engage",   ["cta_clicked", "book_call_clicked", "surprise_me_clicked"]),
+    ("intent",   ["signup_modal_opened"]),
+    ("signup",   ["signup_completed"]),
+    ("studio",   ["studio_entered"]),
+    ("model",    ["model_generated"]),
+    ("import",   ["product_imported", "product_url_submitted", "product_scrape_succeeded"]),
+    ("tryon",    ["tryon_completed"]),
+    ("download", ["result_downloaded", "results_downloaded_all"]),
+    ("pricing",  ["pricing_plan_clicked"]),
+    ("checkout", ["checkout_started"]),
+]
+
+
+def fetch_funnel(env, base):
+    """Overlay live per-stage reach (4 windows) + the same-user activation
+    spine onto the curated funnel block. Returns the curated base unchanged
+    if PostHog is unreachable."""
+    all_events = sorted({e for _, evs in FUNNEL_STAGES for e in evs})
+    ev_list = ", ".join(f"'{e}'" for e in all_events)
+    cases = []
+    for key, evs in FUNNEL_STAGES:
+        cond = (f"event = '{evs[0]}'" if len(evs) == 1
+                else "event IN (" + ", ".join(f"'{e}'" for e in evs) + ")")
+        cases.append(f"{cond}, '{key}'")
+    multi = "multiIf(" + ", ".join(cases) + ", 'other')"
+    reach_q = f"""
+        SELECT stage,
+          count(DISTINCT if(timestamp >= now() - INTERVAL 7 DAY, person_id, NULL)) AS d7,
+          count(DISTINCT if(timestamp >= now() - INTERVAL 30 DAY, person_id, NULL)) AS d30,
+          count(DISTINCT if(timestamp >= now() - INTERVAL 90 DAY, person_id, NULL)) AS d90,
+          count(DISTINCT person_id) AS dall
+        FROM (
+          SELECT person_id, timestamp, {multi} AS stage
+          FROM events
+          WHERE timestamp >= now() - INTERVAL 365 DAY AND event IN ({ev_list})
+        )
+        WHERE stage != 'other'
+        GROUP BY stage
+    """.strip()
+    rows = _hogql(env, reach_q)
+    if not rows:
+        return base
+
+    counts = {r[0]: {"d7": int(r[1]), "d30": int(r[2]), "d90": int(r[3]), "all": int(r[4])}
+              for r in rows if r and r[0]}
+
+    spine_q = """
+        SELECT countIf(s>0) a, countIf(s>0 AND en>0) b, countIf(s>0 AND mo>0) c,
+               countIf(s>0 AND im>0) d, countIf(s>0 AND ty>0) e, countIf(s>0 AND dl>0) f,
+               countIf(s>0 AND pr>0) g, countIf(s>0 AND ch>0) h
+        FROM (
+          SELECT person_id,
+            maxIf(1, event='signup_completed') s, maxIf(1, event='studio_entered') en,
+            maxIf(1, event='model_generated') mo,
+            maxIf(1, event IN ('product_imported','product_url_submitted')) im,
+            maxIf(1, event='tryon_completed') ty,
+            maxIf(1, event IN ('result_downloaded','results_downloaded_all')) dl,
+            maxIf(1, event='pricing_plan_clicked') pr, maxIf(1, event='checkout_started') ch
+          FROM events WHERE timestamp >= now() - INTERVAL 365 DAY GROUP BY person_id
+        )
+    """.strip()
+    spine_rows = _hogql(env, spine_q)
+
+    import copy
+    funnel = copy.deepcopy(base)
+    funnel["source"] = "PostHog · live HogQL"
+    funnel["updated"] = datetime.now(timezone.utc).strftime("%B %-d, %Y")
+    for stage in funnel.get("stages", []):
+        c = counts.get(stage["key"])
+        if c:
+            stage["counts"] = c
+
+    if spine_rows and spine_rows[0]:
+        v = [int(x) for x in spine_rows[0]]
+        denom = v[0] or 1
+        steps = funnel.get("spine", {}).get("steps", [])
+        for i, step in enumerate(steps):
+            if i < len(v):
+                step["count"] = v[i]
+                step["pct"] = round(v[i] / denom * 100)
+        funnel["spine"]["denominator"] = v[0]
+    log(f"PostHog funnel: {len(counts)} stages live")
+    return funnel
+
+
+# ------------------------------------------------------------------- Klaviyo --
+KLAVIYO_REV = "2024-10-15"
+TRYON_METRIC = "T3S8Cw"  # 'Try-on Completed' — the aha, used as flow conversion metric
+
+
+def _klaviyo(key, path, method="GET", body=None):
+    url = f"https://a.klaviyo.com/api/{path}"
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(url, data=data, method=method, headers={
+        "Authorization": f"Klaviyo-API-Key {key}",
+        "revision": KLAVIYO_REV, "accept": "application/json",
+        "content-type": "application/json",
+    })
+    with urllib.request.urlopen(req, timeout=45) as r:
+        return json.loads(r.read().decode())
+
+
+def fetch_lifecycle(env, base):
+    """Overlay live Klaviyo state (flow statuses, the live Ablo flow's
+    messages, prepared lifecycle templates) onto the curated lifecycle block.
+    Analysis fields (opportunities, note, message 'read') stay curated."""
+    key = env.get("KLAVIYO_API_KEY_ABLO")
+    if not key:
+        return base
+    import copy
+    life = copy.deepcopy(base)
+    try:
+        flows = _klaviyo(key, "flows/?fields%5Bflow%5D=name,status,trigger_type,created&page%5Bsize%5D=50").get("data", [])
+    except Exception as e:
+        log(f"Klaviyo flows failed ({e})")
+        return base
+
+    live_ablo, draft_ablo, other = [], [], []
+    for f in flows:
+        a = f.get("attributes", {})
+        name, status = a.get("name", ""), a.get("status", "")
+        low = name.lower()
+        if any(x in low for x in ("clawoop", "launchpad", "christmas", "essential flow")):
+            other.append(name)
+        elif status == "live" and "ablo" in low:
+            entry = {"flow": name, "id": f.get("id"), "trigger": a.get("triggerType", ""),
+                     "since": _short_date(a.get("created", "")), "status": "live"}
+            # Pre-seed messages/read/agg from the curated match so the card
+            # always renders even if the live report overlay misses.
+            cm = next((x for x in base.get("liveFlows", []) if x.get("id") == entry["id"]), None)
+            if cm:
+                entry["messages"] = cm.get("messages", [])
+                entry["read"] = cm.get("read", "")
+                entry["agg"] = cm.get("agg", {})
+            live_ablo.append(entry)
+        elif status == "draft" and ("ablo" in low or "welcome series" in low):
+            draft_ablo.append({"name": name, "trigger": a.get("triggerType", ""), "status": "draft",
+                               "note": "Built but never turned on."})
+
+    # Per-message performance for each live Ablo flow (best-effort).
+    for lf in live_ablo:
+        try:
+            report = _klaviyo(key, "flow-values-reports/", "POST", {
+                "data": {"type": "flow-values-report", "attributes": {
+                    "statistics": ["recipients", "open_rate", "click_rate", "conversions", "conversion_uniques", "unsubscribes"],
+                    "timeframe": {"key": "last_90_days"},
+                    "conversion_metric_id": TRYON_METRIC,
+                    "filter": f"equals(flow_id,\"{lf['id']}\")",
+                    "group_by": ["flow_id", "flow_message_id", "flow_message_name"],
+                }}})
+            results = report.get("data", {}).get("attributes", {}).get("results", [])
+            agg = report.get("data", {}).get("attributes", {}).get("flow_aggregation", [])
+            msgs, seen = [], {}
+            for r in results:
+                g, s = r.get("groupings", {}), r.get("statistics", {})
+                nm = g.get("flow_message_name", "Message")
+                if s.get("recipients", 0) < 2:
+                    continue  # skip stray test variations
+                seen[nm] = seen.get(nm, 0) + 1
+                msgs.append({"name": nm, "timing": "—",
+                             "recipients": int(s.get("recipients", 0)),
+                             "open": round(s.get("open_rate", 0) * 100, 1),
+                             "click": round(s.get("click_rate", 0) * 100, 1),
+                             "conv": round(s.get("conversion_rate", 0) * 100, 1),
+                             "unsub": int(s.get("unsubscribes", 0))})
+            if msgs:
+                # carry timing + read from curated message order where possible
+                curated_msgs = next((x["messages"] for x in base.get("liveFlows", [])
+                                     if x.get("id") == lf["id"]), [])
+                for i, m in enumerate(msgs):
+                    if i < len(curated_msgs):
+                        m["timing"] = curated_msgs[i].get("timing", "—")
+                lf["messages"] = msgs
+                lf["read"] = next((x.get("read", "") for x in base.get("liveFlows", [])
+                                   if x.get("id") == lf["id"]), "")
+            if agg:
+                s = agg[0].get("statistics", {})
+                lf["agg"] = {"recipients": int(s.get("recipients", 0)),
+                             "open": round(s.get("open_rate", 0) * 100, 1),
+                             "click": round(s.get("click_rate", 0) * 100, 1),
+                             "conv": int(s.get("conversions", 0)),
+                             "convUniques": int(s.get("conversion_uniques", 0)),
+                             "convLabel": "Try-on completed"}
+        except Exception as e:
+            log(f"Klaviyo flow report failed for {lf['id']} ({e}); keeping curated messages")
+            cm = next((x for x in base.get("liveFlows", []) if x.get("id") == lf["id"]), None)
+            if cm:
+                lf["messages"], lf["read"], lf["agg"] = cm.get("messages", []), cm.get("read", ""), cm.get("agg", {})
+
+    # Prepared (built, unwired) lifecycle templates.
+    prepared = []
+    try:
+        tpls = _klaviyo(key, "templates/?fields%5Btemplate%5D=name,updated&page%5Bsize%5D=10").get("data", [])
+        for t in tpls:
+            a = t.get("attributes", {})
+            nm = a.get("name", "")
+            if nm.startswith("[Ablo Lifecycle]"):
+                grp = "Activate series" if "Activate" in nm else "AHA series" if "AHA" in nm else "Lifecycle"
+                maps = "signup → model gap" if grp == "Activate series" else "model → try-on gap" if grp == "AHA series" else ""
+                prepared.append({"name": nm, "group": grp, "maps": maps,
+                                 "updated": _short_date(a.get("updated", ""))})
+    except Exception as e:
+        log(f"Klaviyo templates failed ({e})")
+
+    if live_ablo:
+        life["liveFlows"] = live_ablo
+    # Only let live override the curated prepared list when it is at least as
+    # complete (the templates endpoint paginates without sort, so a short page
+    # can under-count). Curated stays authoritative otherwise.
+    if len(prepared) >= len(base.get("prepared", [])):
+        life["prepared"] = prepared
+    if draft_ablo:
+        life["draftFlows"] = draft_ablo
+    if other:
+        life["otherProduct"] = sorted(set(other))
+    life["source"] = "Klaviyo · live API"
+    life["updated"] = datetime.now(timezone.utc).strftime("%B %-d, %Y")
+    log(f"Klaviyo: {len(live_ablo)} live flow(s), {len(prepared)} prepared template(s)")
+    return life
+
+
 # ------------------------------------------------------------------ build ----
 def build():
     content = json.loads(CONTENT.read_text())
     live_experiments = fetch_experiments(load_env(ENV_FILE))
     meta_live = fetch_meta()
 
+    env = load_env(ENV_FILE)
     posthog_live = bool(live_experiments)
     if posthog_live:
         experiments = live_experiments
@@ -203,12 +451,29 @@ def build():
         # (auto-upgrades to live once the PostHog key gets experiment:read scope).
         experiments = content.get("experimentsCurated", {}).get("liveFallback", [])
 
+    # Live product funnel (PostHog) and lifecycle (Klaviyo), overlaid on the
+    # curated fallbacks. Each degrades to its curated block on failure.
+    funnel = fetch_funnel(env, content.get("funnelCurated", {}))
+    lifecycle = fetch_lifecycle(env, content.get("lifecycleCurated", {}))
+    funnel_live = funnel.get("source", "").startswith("PostHog · live")
+    klaviyo_live = lifecycle.get("source", "").startswith("Klaviyo · live")
+
+    # Activation = same-user signup -> try-on (the aha), straight from the funnel.
+    activation = "~47%"
+    try:
+        spine = funnel.get("spine", {}).get("steps", [])
+        aha = next((s for s in spine if s.get("aha")), None)
+        if aha:
+            activation = f"~{aha['pct']}%"
+    except (KeyError, TypeError):
+        pass
+
     signups = meta_live["signups"]
     kpis = [
         {"label": "Paying customers", "value": "0 / 5", "sub": "the brag · CAC < $300", "tone": "accent"},
         {"label": "Lifetime signups", "value": str(signups) if signups is not None else "30", "sub": "all-time, paid", "tone": "default"},
         {"label": "Cost per signup", "value": meta_live["cpl"] or "$21.04", "sub": "target ≤ $20", "tone": "default"},
-        {"label": "Activation", "value": "~53%", "sub": "signup → try-on · target ≥ 50%", "tone": "default"},
+        {"label": "Activation", "value": activation, "sub": "signup → try-on · target ≥ 50%", "tone": "default"},
         {"label": "Paid spend", "value": meta_live["spend"] or "$631", "sub": "validation budget · $200/wk", "tone": "default"},
         {"label": "Live experiments", "value": str(len(experiments)) if experiments else "1", "sub": "running in PostHog", "tone": "default"},
     ]
@@ -220,9 +485,13 @@ def build():
         "kpis": kpis,
         "experiments": experiments,
         "meta": meta_live,
+        "funnel": funnel,
+        "lifecycle": lifecycle,
         "refreshedSources": {
             "posthog": posthog_live,
             "meta": signups is not None,
+            "funnel": funnel_live,
+            "klaviyo": klaviyo_live,
         },
     }
 

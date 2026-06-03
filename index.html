@@ -239,6 +239,68 @@
     .bc-matrix .ver { color:var(--muted); }
     @media (max-width:900px){ .bc .sw { grid-template-columns:1fr; } }
 
+    /* ---------- Funnel ---------- */
+    .win-sel { display:flex; gap:6px; flex-wrap:wrap; margin:-6px 0 22px; }
+    .win-sel button { font-family:var(--sans); font-size:12px; padding:6px 14px; border-radius:var(--full); border:1px solid var(--line); background:transparent; color:var(--text2); cursor:pointer; transition:background .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease); }
+    .win-sel button:hover { border-color:var(--line-h); color:var(--text); }
+    .win-sel button.on { background:rgba(232,213,163,0.12); border-color:rgba(232,213,163,0.4); color:var(--accent); }
+    .fbar { display:grid; grid-template-columns:198px 1fr 132px; gap:14px; align-items:center; padding:6px 0; }
+    .fbar .lab { font-size:13px; color:var(--text); font-weight:500; line-height:1.25; }
+    .fbar .lab .ev { display:block; font-family:ui-monospace,Menlo,monospace; font-size:10px; color:var(--muted); margin-top:2px; }
+    .fbar .track { height:30px; background:var(--glass); border:1px solid var(--line-soft); border-radius:var(--radius-sm); overflow:hidden; }
+    .fbar .fill { height:100%; background:linear-gradient(90deg, rgba(232,213,163,0.42), rgba(232,213,163,0.16)); min-width:3px; transition:width .5s var(--ease); }
+    .fbar.aha .fill { background:linear-gradient(90deg, var(--accent), var(--accent-dim)); }
+    .fbar.pay .fill { background:linear-gradient(90deg, var(--success), rgba(74,222,128,0.35)); }
+    .fbar .meta { text-align:right; }
+    .fbar .meta .n { font-size:18px; font-weight:600; letter-spacing:-.02em; }
+    .fbar .meta .step { font-size:11px; margin-top:2px; }
+    .step-hi { color:var(--success); } .step-mid { color:var(--accent-dim); } .step-lo { color:var(--error); }
+    .fgroup { font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-dim); font-weight:600; margin:20px 0 6px; }
+    .badge-aha, .badge-pay { font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:var(--full); margin-left:8px; font-weight:700; }
+    .badge-aha { background:rgba(232,213,163,0.18); color:var(--accent); }
+    .badge-pay { background:rgba(74,222,128,0.16); color:var(--success); }
+    .spine .srow { display:grid; grid-template-columns:180px 1fr 88px; gap:14px; align-items:center; padding:7px 0; }
+    .spine .srow .sl { font-size:13px; color:var(--text2); }
+    .spine .srow.aha .sl, .spine .srow.pay .sl { color:var(--text); font-weight:500; }
+    .spine .sbar { height:9px; border-radius:var(--full); background:var(--glass); overflow:hidden; border:1px solid var(--line-soft); }
+    .spine .sbar i { display:block; height:100%; background:var(--accent-dim); border-radius:var(--full); transition:width .5s var(--ease); }
+    .spine .srow.aha .sbar i { background:var(--accent); }
+    .spine .srow.pay .sbar i { background:var(--success); }
+    .spine .spct { text-align:right; font-size:13.5px; font-weight:600; }
+    .spine .spct span { font-size:11px; color:var(--muted); font-weight:400; margin-left:5px; }
+
+    /* ---------- Lifecycle ---------- */
+    .tl { position:relative; padding-left:28px; margin-top:4px; }
+    .tl::before { content:''; position:absolute; left:6px; top:8px; bottom:8px; width:2px; background:var(--line); }
+    .tl .node { position:relative; margin-bottom:14px; }
+    .tl .node:last-child { margin-bottom:0; }
+    .tl .node::before { content:''; position:absolute; left:-28px; top:8px; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid var(--bg); }
+    .tl .node.ghost::before { background:var(--muted); }
+    .email { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius-lg); padding:13px 16px; }
+    .email.ghost { border-style:dashed; }
+    .email .et { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; }
+    .email .et b { font-size:13.5px; font-weight:600; }
+    .email .timing { font-size:11px; color:var(--accent-dim); }
+    .email .estats { display:flex; gap:18px; margin-top:9px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+    .email .estats b { color:var(--text); font-weight:600; }
+    .prep-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .prep { border:1px dashed var(--line-h); border-radius:var(--radius-lg); padding:12px 14px; background:var(--glass); }
+    .prep .pn { font-size:13px; color:var(--text); font-weight:500; }
+    .prep .pm { font-size:11px; color:var(--accent-dim); margin-top:4px; }
+
+    /* ---------- Command Center ---------- */
+    .cmd { display:grid; grid-template-columns:36px 1fr; gap:15px; padding:17px 0; border-bottom:1px solid var(--line-soft); }
+    .cmd:last-child { border-bottom:0; }
+    .cmd .rk { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0; }
+    .cmd .rk.high { background:rgba(248,113,113,0.14); color:var(--error); }
+    .cmd .rk.med { background:rgba(201,169,110,0.16); color:var(--accent-dim); }
+    .cmd h3 { font-size:14.5px; font-weight:600; margin:0 0 6px; }
+    .cmd .cmeta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .srchealth { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:26px; }
+    .srchealth .s { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); }
+    .srchealth .s .how { color:var(--muted); }
+    @media (max-width:900px){ .fbar { grid-template-columns:120px 1fr 74px; } .fbar .lab .ev { display:none; } .spine .srow { grid-template-columns:120px 1fr 64px; } .prep-grid { grid-template-columns:1fr; } }
+
     /* ---------- Responsive ---------- */
     @media (max-width:900px) {
       :root { --sidebar:0px; }
@@ -284,6 +346,7 @@
   (function(){
     const D = window.ABLO_OS || {};
     const L = D.live || {};
+    let funnelWin = 'all';  // funnel time-window selector state
 
     // ---- tiny DOM helper ----
     function h(tag, attrs, ...kids){
@@ -312,6 +375,10 @@
       megaphone:'M3 11l14-7v16l-14-7zM3 11v4M7 12.5V20a1 1 0 0 0 1 1h2',
       layout:'M3 3h18v18H3zM3 9h18M9 21V9',
       shield:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+      funnel:'M3 4h18l-7 9v6l-4 2v-8z',
+      mail:'M4 5h16v14H4zM4 7l8 6 8-6',
+      layers:'M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
+      zap:'M13 2L4 14h7l-1 8 10-12h-7z',
     };
     const svg = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${p.split('M').filter(Boolean).map(d=>'<path d="M'+d+'"/>').join('')}</svg>`;
 
@@ -524,6 +591,156 @@
       );
     };
 
+    S.funnel = ()=>{ const f=(L.funnel)||D.funnelCurated||{}; const live=(L.refreshedSources||{}).funnel;
+      const win = (f.windows||[]).includes(funnelWin) ? funnelWin : 'all';
+      const stages=f.stages||[]; const wl=f.windowLabels||{};
+      const maxc=Math.max(1, ...stages.map(s=>(s.counts||{})[win]||0));
+      const stepClass = p => p==null?'':(p>100?'step-mid':p>=70?'step-hi':p>=40?'step-mid':'step-lo');
+
+      const selector=h('div',{class:'win-sel'}, (f.windows||['all']).map(w=>
+        h('button',{class:(w===win?'on':''),onclick:function(){ funnelWin=w; render('funnel'); }}, wl[w]||w)));
+
+      // full reach funnel
+      const bars=[]; let prev=null, grp=null;
+      stages.forEach(s=>{
+        if(s.group && s.group!==grp){ bars.push(h('div',{class:'fgroup'}, s.group)); grp=s.group; }
+        const c=(s.counts||{})[win]||0;
+        const step = prev!=null ? Math.round(c/prev*100) : null;
+        bars.push(h('div',{class:'fbar'+(s.aha?' aha':'')+(s.payment?' pay':'')},
+          h('div',{class:'lab'}, h('span',{}, s.label, s.aha?h('span',{class:'badge-aha'},'aha'):s.payment?h('span',{class:'badge-pay'},'pay'):null), s.sub?h('span',{class:'ev'},s.sub):null),
+          h('div',{class:'track'}, h('div',{class:'fill',style:'width:'+(c/maxc*100).toFixed(1)+'%'})),
+          h('div',{class:'meta'}, h('div',{class:'n'}, String(c)),
+            step!=null ? h('div',{class:'step '+stepClass(step)}, (step>100?'≥100%':step+'%')+' of prev') : h('div',{class:'step',style:'color:var(--muted)'},'entry'))
+        ));
+        prev=c;
+      });
+
+      // activation spine (same-user, monotonic)
+      const sp=f.spine||{}; const ss=sp.steps||[];
+      const aha=ss.find(x=>x.aha)||{}, pay=ss.find(x=>x.payment)||{};
+      const spineRows=ss.map(s=>h('div',{class:'srow'+(s.aha?' aha':'')+(s.payment?' pay':'')},
+        h('div',{class:'sl'}, s.label),
+        h('div',{class:'sbar'}, h('i',{style:'width:'+(s.pct||0)+'%'})),
+        h('div',{class:'spct'}, (s.pct!=null?s.pct+'%':''), h('span',{}, String(s.count)))));
+
+      return frag(
+        sectionHead('Funnel','The happy path, and where it leaks', f.note),
+        h('div',{class:'freshness'},
+          h('span',{class:'pill'}, h('span',{class:'dot '+(live?'live':'cached')}), 'PostHog · '+(f.source||(live?'live':'cached'))),
+          f.updated? h('span',{},'Updated '+f.updated):null),
+        h('div',{class:'callout'}, h('div',{class:'tag'},'The headline'),
+          h('p',{html:'Of <b>'+(sp.denominator||0)+'</b> signups, <b style="color:var(--accent)">'+(aha.pct||0)+'%</b> reach the aha (try-on) but only <b>'+(pay.pct||0)+'%</b> reach checkout, and <b>0</b> purchases are confirmed (no success event fires). The aha is healthy; value-capture and payment are where the money leaks.'})),
+        blocktitle('Activation spine · same user, of all signups'),
+        h('p',{class:'small',style:'margin:-8px 0 14px'}, sp.note||''),
+        h('div',{class:'card spine'}, spineRows),
+        blocktitle('Full happy path · distinct users per milestone'),
+        selector,
+        h('div',{class:'card flat'}, bars),
+        blocktitle('Where it leaks'),
+        h('div',{class:'stack'}, (f.drops||[]).map(d=>card({cls:'flat',children:[
+          h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px'},
+            h('h3',{style:'margin:0;font-size:14px'},d.title),
+            h('div',{class:'chips'}, d.rate?chip(d.rate, d.sev==='high'?'error':'warn'):null, chip(d.sev==='high'?'high':'medium', d.sev==='high'?'error':'warn'))),
+          h('p',{style:'margin-bottom:8px'}, d.detail),
+          d.fix? h('p',{class:'small',style:'color:var(--accent-dim)'}, '▸ Fix: '+d.fix):null
+        ]}))),
+        blocktitle('Measurement gaps'),
+        card({cls:'flat',children:[bullets(f.gaps||[])]})
+      );
+    };
+
+    S.lifecycle = ()=>{ const lc=(L.lifecycle)||D.lifecycleCurated||{}; const live=(L.refreshedSources||{}).klaviyo;
+      const flowCard = flow => card({children:[
+        h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px'},
+          h('h3',{style:'margin:0'},flow.flow),
+          h('div',{class:'chips'}, chip(flow.status||'live','success'), flow.trigger?chip('trigger: '+flow.trigger,'muted'):null, flow.since?chip('since '+flow.since,'muted'):null)),
+        flow.agg? h('div',{class:'grid g4',style:'margin-bottom:16px'},
+          stat({value:String(flow.agg.recipients||0),label:'Recipients'}),
+          stat({value:(flow.agg.open||0)+'%',label:'Open rate',tone:'accent'}),
+          stat({value:(flow.agg.click||0)+'%',label:'Click rate'}),
+          stat({value:String(flow.agg.conv||0),label:flow.agg.convLabel||'Conversions'})):null,
+        h('div',{class:'tl'}, (flow.messages||[]).map(m=>h('div',{class:'node'},
+          h('div',{class:'email'},
+            h('div',{class:'et'}, h('b',{},m.name), h('span',{class:'timing'}, m.timing||'')),
+            h('div',{class:'estats'},
+              h('span',{html:'<b>'+(m.recipients||0)+'</b> sent'}),
+              h('span',{html:'<b>'+(m.open||0)+'%</b> open'}),
+              h('span',{html:'<b>'+(m.click||0)+'%</b> click'}),
+              h('span',{html:'<b>'+(m.conv||0)+'%</b> conv'}),
+              (m.unsub? h('span',{html:'<b>'+m.unsub+'</b> unsub'}):null))
+          )))),
+        flow.read? h('div',{class:'callout warn',style:'margin-top:14px'}, h('div',{class:'tag'},'The read'), h('p',{},flow.read)):null
+      ]});
+
+      const prepByGroup={}; (lc.prepared||[]).forEach(p=>{ (prepByGroup[p.group]=prepByGroup[p.group]||[]).push(p); });
+      const prepBlocks=Object.keys(prepByGroup).map(g=>frag(
+        h('p',{class:'small',style:'margin:14px 0 8px;color:var(--accent-dim)'}, g+' · maps to '+(prepByGroup[g][0].maps||'')),
+        h('div',{class:'prep-grid'}, prepByGroup[g].map(p=>h('div',{class:'prep'},
+          h('div',{class:'pn'}, p.name.replace('[Ablo Lifecycle] ','')), p.updated?h('div',{class:'pm'},'built '+p.updated):null)))
+      ));
+
+      return frag(
+        sectionHead('Lifecycle','The emails signups actually get', lc.note),
+        h('div',{class:'freshness'},
+          h('span',{class:'pill'}, h('span',{class:'dot '+(live?'live':'cached')}), 'Klaviyo · '+(lc.source||(live?'live':'cached')))),
+        blocktitle('Live flows'),
+        h('div',{class:'stack'}, (lc.liveFlows||[]).map(flowCard)),
+        blocktitle('Built but wired to nothing'),
+        h('div',{class:'callout warn'}, h('div',{class:'tag'},'Fastest lever in the OS'),
+          h('p',{html:'Six lifecycle emails are built and sitting in the template library, connected to no flow. The <b>Activate</b> series targets the signup→model gap; the <b>AHA</b> series targets the model→try-on gap. The triggers (Model Generated, Try-on Completed) already flow into Klaviyo. They just need wiring.'})),
+        frag(...prepBlocks),
+        blocktitle('Behavioral flow opportunities'),
+        h('div',{class:'stack'}, (lc.opportunities||[]).map(o=>card({cls:'flat',children:[
+          h('h3',{style:'margin:0 0 8px;font-size:14px'},o.title),
+          h('div',{class:'chips',style:'margin-bottom:10px'}, o.trigger?chip('trigger: '+o.trigger,'accent'):null, o.exit?chip('exit: '+o.exit,'muted'):null),
+          h('p',{style:'margin-bottom:6px'}, o.use),
+          o.impact? h('p',{class:'small',style:'color:var(--accent-dim)'},'▸ '+o.impact):null
+        ]}))),
+        (lc.draftFlows&&lc.draftFlows.length)? frag(blocktitle('Draft flows'),
+          h('div',{class:'stack'}, lc.draftFlows.map(d=>card({cls:'flat',children:[
+            h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap'},
+              h('h3',{style:'margin:0;font-size:14px'},d.name), h('div',{class:'chips'}, chip('draft','muted'), d.trigger?chip(d.trigger,'muted'):null)),
+            d.note? h('p',{class:'small',style:'margin-top:6px'},d.note):null
+          ]})))):null,
+        (lc.otherProduct&&lc.otherProduct.length)? frag(blocktitle('Other products (not Ablo Studio)'),
+          h('div',{class:'chips'}, lc.otherProduct.map(x=>chip(x,'muted')))):null
+      );
+    };
+
+    S.channels = ()=>{ const c=D.channels||{};
+      return frag(
+        sectionHead('Channels','Every surface, one scorecard', c.intro),
+        c.updated? h('div',{class:'freshness'}, h('span',{class:'pill'}, h('span',{class:'dot cached'}), 'Updated '+c.updated)):null,
+        h('div',{class:'stack'}, (c.rows||[]).map(r=>card({cls:r.tone==='accent'?'lead':'',children:[
+          h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px'},
+            h('h3',{style:'margin:0'},r.name),
+            h('div',{class:'chips'}, chip(r.role,'muted'), chip(r.status, r.tone||'default'))),
+          h('div',{class:'chips',style:'margin-bottom:10px'}, (r.metrics||[]).map(m=>chip(m[0]+': '+m[1], 'accent'))),
+          h('p',{}, r.read)
+        ]}))),
+        blocktitle('The budget decision'),
+        h('div',{class:'callout'}, h('div',{class:'tag'},'Where to concentrate'), h('p',{},c.decision))
+      );
+    };
+
+    S.commandcenter = ()=>{ const cc=D.commandCenter||{};
+      return frag(
+        sectionHead('Command Center','The daily action queue', cc.intro),
+        h('div',{class:'srchealth'}, (cc.sources||[]).map(s=>h('div',{class:'s'},
+          h('span',{class:'dot '+(s.tone==='accent'?'live':'cached')}), h('span',{}, s.name), h('span',{class:'how'},'· '+s.how)))),
+        blocktitle('Action queue · ranked by leverage'),
+        h('div',{class:'card flat'}, (cc.items||[]).map(it=>h('div',{class:'cmd'},
+          h('div',{class:'rk '+(it.sev==='high'?'high':'med')}, it.rank),
+          h('div',{},
+            h('h3',{}, it.title),
+            h('div',{class:'cmeta'}, chip(it.owner,'muted'), chip(it.status, /ready|shipping/i.test(it.status)?'success':/block/i.test(it.status)?'error':'warn'), it.targets?chip('targets: '+it.targets,'accent'):null),
+            h('p',{style:'margin:0;color:var(--text2);font-size:13.5px'}, it.body))
+        ))),
+        blocktitle('The daily loop'),
+        h('div',{class:'callout'}, h('div',{class:'tag'},'Self-improving routine'), h('p',{},cc.loop))
+      );
+    };
+
     S.messaging = ()=>{ const m=D.messaging||{};
       return frag(
         sectionHead('Messaging','Beliefs, pillars, and the words',m.perceptionsNote),
@@ -658,6 +875,9 @@
 
     // ============================ NAV / ROUTER ============================
     const NAV = [
+      {group:'Operate', items:[
+        {id:'commandcenter',label:'Command Center',icon:I.zap},
+      ]},
       {group:'Strategy', items:[
         {id:'overview',label:'Overview',icon:I.home},
         {id:'goals',label:'Goals & OKRs',icon:I.target},
@@ -670,7 +890,10 @@
         {id:'messaging',label:'Messaging',icon:I.message},
         {id:'voice',label:'Brand Voice',icon:I.feather},
       ]},
-      {group:'Execution', items:[
+      {group:'Growth', items:[
+        {id:'funnel',label:'Funnel',icon:I.funnel},
+        {id:'lifecycle',label:'Lifecycle',icon:I.mail},
+        {id:'channels',label:'Channels',icon:I.layers},
         {id:'experiments',label:'Experiments',icon:I.flask},
         {id:'campaigns',label:'Campaigns',icon:I.megaphone},
         {id:'content',label:'Content Strategy',icon:I.layout},
@@ -693,7 +916,7 @@
     foot.append(
       h('div',{class:'row'}, h('span',{class:'dot '+(metaLive?'live':'cached')}), 'Meta '+(metaLive?'live':'cached')),
       h('div',{class:'row'}, h('span',{class:'dot '+(phLive?'live':'cached')}), 'PostHog '+(phLive?'live':'cached')),
-      h('div',{class:'stamp'}, 'Updated '+((D.meta||{}).updated||'· ')+' · refreshes weekly')
+      h('div',{class:'stamp'}, 'Updated '+((D.meta||{}).updated||'· ')+' · auto-refreshes')
     );
 
     const view=document.getElementById('view');

@@ -201,6 +201,44 @@
     .small { font-size:12px; color:var(--muted); }
     .mt0 { margin-top:0; }
 
+    /* ---------- Battle Card ---------- */
+    .bc { border:1px solid var(--line); border-radius:var(--radius); background:var(--glass); padding:24px; }
+    .bc:hover { border-color:var(--line-h); }
+    .bc .bc-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+    .bc .bc-head h3 { font-size:18px; font-weight:600; letter-spacing:-.01em; margin:0; }
+    .bc .bc-site { font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:11.5px; color:var(--accent-dim); }
+    .bc .bc-site:hover { color:var(--accent); }
+    .bc .bc-tag { font-size:14.5px; color:var(--text); line-height:1.45; padding:0 0 0 16px; border-left:2px solid var(--accent-dim); margin-bottom:16px; }
+    .bc .sw { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0; }
+    .bc .sw h5 { font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; font-weight:600; margin-bottom:9px; }
+    .bc .sw .edge h5 { color:var(--success); }
+    .bc .sw .soft h5 { color:var(--error); }
+    .bc .sw ul { list-style:none; }
+    .bc .sw li { position:relative; padding:6px 0 6px 16px; font-size:13px; color:var(--text2); line-height:1.45; }
+    .bc .sw li::before { content:''; position:absolute; left:2px; top:13px; width:5px; height:5px; border-radius:var(--full); }
+    .bc .sw .edge li::before { background:var(--success); opacity:.7; }
+    .bc .sw .soft li::before { background:var(--error); opacity:.6; }
+    .bc .objection { border:1px solid rgba(201,169,110,0.3); background:rgba(201,169,110,0.06); border-radius:var(--radius-lg); padding:13px 16px; margin:14px 0; }
+    .bc .objection .t { font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--accent-dim); font-weight:600; margin-bottom:5px; }
+    .bc .objection p { color:var(--text); font-size:13.5px; font-style:italic; }
+    .bc .wins { border:1px solid rgba(232,213,163,0.28); background:rgba(232,213,163,0.05); border-radius:var(--radius-lg); padding:16px 18px; border-left:2px solid var(--accent); }
+    .bc .wins .t { font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:12px; }
+    .bc .wins .win { display:flex; gap:12px; align-items:flex-start; padding:7px 0; }
+    .bc .wins .win:not(:last-child) { border-bottom:1px solid var(--line-soft); }
+    .bc .wins .win p { color:var(--text); font-size:13.5px; line-height:1.5; margin:0; }
+    .bc-meta { display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-bottom:14px; }
+    .bc-meta b { color:var(--text2); font-weight:500; }
+
+    /* matrix */
+    .bc-matrix { min-width:1180px; }
+    .bc-matrix th.us, .bc-matrix td.us { background:rgba(232,213,163,0.07); }
+    .bc-matrix th.us { color:var(--accent); }
+    .bc-matrix th .site { display:block; font-size:9px; color:var(--muted); text-transform:none; letter-spacing:0; margin-top:3px; font-weight:400; }
+    .bc-matrix td { font-size:12px; }
+    .bc-matrix tr.grouprow td { background:var(--bg2); color:var(--accent-dim); font-size:10px; letter-spacing:.13em; text-transform:uppercase; font-weight:600; padding:9px 14px; }
+    .bc-matrix .ver { color:var(--muted); }
+    @media (max-width:900px){ .bc .sw { grid-template-columns:1fr; } }
+
     /* ---------- Responsive ---------- */
     @media (max-width:900px) {
       :root { --sidebar:0px; }
@@ -273,6 +311,7 @@
       flask:'M9 3h6M10 3v6.5L5 18a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8.5V3M7.5 14h9',
       megaphone:'M3 11l14-7v16l-14-7zM3 11v4M7 12.5V20a1 1 0 0 0 1 1h2',
       layout:'M3 3h18v18H3zM3 9h18M9 21V9',
+      shield:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
     };
     const svg = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${p.split('M').filter(Boolean).map(d=>'<path d="M'+d+'"/>').join('')}</svg>`;
 
@@ -403,6 +442,85 @@
         ]}))),
         blocktitle('Differentiation summary'),
         card({cls:'flat',children:[bullets(c.differentiation||[])]})
+      );
+    };
+
+    S.battlecard = ()=>{ const b=D.battlecard||{}; const comps=b.competitors||[];
+      // render a matrix value cell: mute empties and VERIFY flags
+      const fmtCell = t => {
+        if(t==null||t==='') return '<span class="ver">·</span>';
+        const s=String(t).trim();
+        if(/^\[?VERIFY/i.test(s)||/^n\/a/i.test(s)) return '<span class="ver">'+s+'</span>';
+        return s.replace(/\[VERIFY[^\]]*\]/gi, m=>'<span class="ver">'+m+'</span>');
+      };
+      const swList = arr => { const u=h('ul',{}); (arr||[]).forEach(x=>{ if(x&&x!=='') u.append(h('li',{html:fmtCell(x)})); }); return u; };
+
+      // ---- per-competitor battle cards ----
+      const compCard = c => h('div',{class:'bc'},
+        h('div',{class:'bc-head'},
+          h('h3',{},c.name),
+          c.site? h('a',{class:'bc-site',href:'https://'+c.site,target:'_blank',rel:'noopener'},c.site+' ↗'):null),
+        c.tagline? h('div',{class:'bc-tag',html:c.tagline}):null,
+        h('div',{class:'bc-meta'},
+          c.promise? h('span',{html:'<b>Promise</b> · '+c.promise}):null,
+          c.icp? h('span',{html:'<b>ICP</b> · '+c.icp}):null),
+        h('div',{class:'bc-meta'},
+          c.entryTier? h('span',{html:'<b>Entry</b> · '+fmtCell(c.entryTier)}):null,
+          c.perImage? h('span',{html:'<b>$/image</b> · '+fmtCell(c.perImage)}):null,
+          c.funding? h('span',{html:'<b>Stage</b> · '+fmtCell(c.funding)}):null),
+        (c.reviews||c.customers)? h('div',{class:'bc-meta'},
+          c.reviews? h('span',{html:'<b>Reviews</b> · '+fmtCell(c.reviews)}):null,
+          c.customers? h('span',{html:'<b>Named customers</b> · '+fmtCell(c.customers)}):null):null,
+        h('div',{class:'sw'},
+          h('div',{class:'edge'}, h('h5',{},'Their edge'), swList(c.strengths)),
+          h('div',{class:'soft'}, h('h5',{},'Soft spots'), swList(c.weaknesses))),
+        c.objection? h('div',{class:'objection'}, h('div',{class:'t'},'Buyer will say'), h('p',{},'“'+c.objection+'”')):null,
+        (c.wins&&c.wins.length)? h('div',{class:'wins'}, h('div',{class:'t'},'How Studio wins'),
+          ...c.wins.map((w,i)=>h('div',{class:'win'}, h('span',{class:'num-badge'},String(i+1)), h('p',{html:fmtCell(w)})))):null
+      );
+
+      // ---- wide comparison matrix ----
+      function matrix(cols, groups){
+        const w=h('div',{class:'table-wrap'}); const t=h('table',{class:'bc-matrix'});
+        const hr=h('tr'); hr.append(h('th',{},'Feature'));
+        cols.forEach((name,i)=>hr.append(h('th',{class:(i===0?'us':''),html:name+(b.sites&&b.sites[i]?'<span class="site">'+b.sites[i]+'</span>':'')})));
+        t.append(h('thead',{},hr));
+        const tb=h('tbody');
+        (groups||[]).forEach(g=>{
+          if(g.group){ const gr=h('tr',{class:'grouprow'}); gr.append(h('td',{colspan:cols.length+1},g.group)); tb.append(gr); }
+          (g.rows||[]).forEach(row=>{
+            const tr=h('tr'); tr.append(h('td',{class:'lead-cell'},row.feature));
+            (row.values||[]).forEach((v,i)=>tr.append(h('td',{class:(i===0?'us':''),html:fmtCell(v)})));
+            tb.append(tr);
+          });
+        });
+        t.append(tb); w.append(t); return w;
+      }
+      // ---- pricing matrix (flat rows) ----
+      function flatMatrix(cols, rows, labelKey){
+        const w=h('div',{class:'table-wrap'}); const t=h('table',{class:'bc-matrix'});
+        const hr=h('tr'); hr.append(h('th',{},''));
+        cols.forEach((name,i)=>hr.append(h('th',{class:(i===0?'us':''),html:name+(b.sites&&b.sites[i]?'<span class="site">'+b.sites[i]+'</span>':'')})));
+        t.append(h('thead',{},hr));
+        const tb=h('tbody');
+        (rows||[]).forEach(row=>{ const tr=h('tr'); tr.append(h('td',{class:'lead-cell'},row[labelKey]));
+          (row.values||[]).forEach((v,i)=>tr.append(h('td',{class:(i===0?'us':''),html:fmtCell(v)}))); tb.append(tr); });
+        t.append(tb); w.append(t); return w;
+      }
+
+      const fm=b.featureMatrix||{}; const pr=b.pricing||{};
+      return frag(
+        sectionHead('Battle Card','Head-to-head vs the AI try-on set',b.intro),
+        h('div',{class:'freshness'},
+          h('span',{class:'pill'}, h('span',{class:'dot cached'}), 'Source: competitive workbook'),
+          b.updated? h('span',{},'Updated '+b.updated):null),
+        b.caveat? h('div',{class:'callout warn',style:'margin-bottom:8px'}, h('div',{class:'tag'},'Read before sharing'), h('p',{},b.caveat)):null,
+        blocktitle('Competitor cards'),
+        h('div',{class:'stack'}, comps.map(compCard)),
+        blocktitle('Feature matrix'),
+        matrix(fm.columns||b.columns||[], fm.groups||[]),
+        blocktitle('Pricing & per-image'),
+        flatMatrix(pr.columns||b.columns||[], pr.rows||[], 'dim')
       );
     };
 
@@ -546,6 +664,7 @@
         {id:'icp',label:'ICP & Segments',icon:I.users},
         {id:'positioning',label:'Positioning',icon:I.compass},
         {id:'competition',label:'Competition',icon:I.swords},
+        {id:'battlecard',label:'Battle Card',icon:I.shield},
       ]},
       {group:'Brand', items:[
         {id:'messaging',label:'Messaging',icon:I.message},

@@ -25,8 +25,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 CONTENT = HERE / "content.json"
-OUT = HERE / "data.js"
-HISTORY = HERE / "history.jsonl"  # append-only daily time-series (one row per UTC day)
+# OUT and HISTORY go to OS_DATA_DIR when set (a writable Railway volume in the
+# cloud); otherwise next to the repo as before. Keeps local behaviour identical.
+_DATA = Path(os.environ.get("OS_DATA_DIR", HERE))
+OUT = _DATA / "data.js"
+HISTORY = _DATA / "history.jsonl"  # append-only daily time-series (one row per UTC day)
 
 # The ablo-ads-autopilot keeps fresh Meta state here (refreshed every 6h).
 AUTOPILOT = Path(
@@ -710,7 +713,9 @@ def build():
     live_experiments = fetch_experiments(load_env(ENV_FILE))
     meta_live = fetch_meta()
 
-    env = load_env(ENV_FILE)
+    # Tokens: process environment as the base (Railway env vars / the cloud
+    # token store), with ~/.claude/.env overlaid when present (local machine).
+    env = {**os.environ, **load_env(ENV_FILE)}
     posthog_live = bool(live_experiments)
     if posthog_live:
         experiments = live_experiments

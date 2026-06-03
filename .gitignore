@@ -2,3 +2,5 @@
 .launchd.out.log
 .launchd.err.log
 .DS_Store
+tokens.env
+server-state.json

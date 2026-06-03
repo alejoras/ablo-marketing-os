@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T05:54:11.607994+00:00"
+    "updatedISO": "2026-06-03T06:06:09.313331+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -2527,7 +2527,7 @@ window.ABLO_OS = {
           "sub": "$pageview",
           "group": "Acquire",
           "counts": {
-            "d7": 333,
+            "d7": 330,
             "d30": 755,
             "d90": 755,
             "all": 755
@@ -2539,7 +2539,7 @@ window.ABLO_OS = {
           "sub": "cta_clicked",
           "group": "Acquire",
           "counts": {
-            "d7": 83,
+            "d7": 82,
             "d30": 169,
             "d90": 169,
             "all": 169
@@ -2577,7 +2577,7 @@ window.ABLO_OS = {
           "sub": "studio_entered",
           "group": "Activate",
           "counts": {
-            "d7": 46,
+            "d7": 45,
             "d30": 80,
             "d90": 80,
             "all": 80
@@ -2614,7 +2614,7 @@ window.ABLO_OS = {
           "sub": "tryon_completed",
           "group": "Aha",
           "counts": {
-            "d7": 11,
+            "d7": 10,
             "d30": 30,
             "d90": 30,
             "all": 30
@@ -2627,7 +2627,7 @@ window.ABLO_OS = {
           "sub": "result_downloaded",
           "group": "Value",
           "counts": {
-            "d7": 2,
+            "d7": 1,
             "d30": 5,
             "d90": 5,
             "all": 5
@@ -3039,7 +3039,7 @@ window.ABLO_OS = {
     },
     "instagram": {
       "username": "ablo.ai",
-      "followers": 223696,
+      "followers": 223695,
       "posts": 165,
       "source": "Meta Graph · live",
       "canPost": false,
@@ -3245,7 +3245,7 @@ window.ABLO_OS = {
           "email_click": 2.5,
           "email_recipients": 80,
           "paying_customers": 0,
-          "ig_followers": 223696,
+          "ig_followers": 223695,
           "activation_rate": 67,
           "aha_rate": 47,
           "payment_rate": 11

@@ -12,10 +12,22 @@ link publicly.
 
 | Group | Sections |
 |---|---|
-| Operate | **Command Center** — the daily, ranked action queue (the agent's surface) · **Trends** — daily history, is it moving up or down |
+| Operate | **Command Center** — ranked action queue, anchored to KPIs, with the live ClickUp task feed · **Trends** — daily history, is it moving up or down |
 | Strategy | Overview · Goals & OKRs · ICP & Segments · Positioning · Competition · Battle Card |
 | Brand | Messaging & Perceptions · Brand Voice (with a copy-paste voice card for agents) |
-| Growth | **Funnel** (PostHog) · **Lifecycle** (Klaviyo) · **Channels** · Experiments · Campaigns · Content |
+| Growth | **Funnel** (PostHog) · **Lifecycle** (Klaviyo) · **Channels** (live UTM attribution) · **Content Calendar** · Experiments · Campaigns · Content |
+
+## Connected sources
+
+| Source | What it feeds | Auth |
+|---|---|---|
+| PostHog | Funnel, channel attribution (UTM), daily history, experiments | `POSTHOG_PERSONAL_API_KEY` |
+| Klaviyo | Lifecycle flows + prepared emails | `KLAVIYO_API_KEY_ABLO` |
+| Meta Ads | Campaign spend/CPL/signups (via the autopilot) | `META_ADS_TOKEN` |
+| ClickUp | Live task feed in the Command Center (task source of truth) | `CLICKUP_TOKEN_ABLO` |
+| Instagram | Organic follower/post stats (Content Calendar) | `META_ADS_TOKEN` (account-read) |
+
+Instagram **publishing** by the agent and post-level engagement need an IG token with `instagram_content_publish` — the `META_IG_TOKEN` is currently expired. GA4 is intentionally **not** connected: PostHog already captures channel/UTM attribution tied to product events, which GA4 can't do. The **Command Center** items each carry a `ladder` field naming the KPI they move, so priority always means goal-impact. The **Content Calendar** is seeded; wiring it to a ClickUp calendar is queued (a ClickUp task was created).
 
 ### The three working surfaces
 

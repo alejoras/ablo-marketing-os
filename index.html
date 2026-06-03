@@ -303,6 +303,37 @@
     .srchealth { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:26px; }
     .srchealth .s { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); }
     .srchealth .s .how { color:var(--muted); }
+    /* objectives anchor + ladder */
+    .objbar { border:1px solid rgba(232,213,163,0.24); background:rgba(232,213,163,0.05); border-radius:var(--radius); padding:16px 18px; margin-bottom:24px; }
+    .objbar .ns { font-size:14px; color:var(--text2); margin-bottom:13px; }
+    .objbar .ns b { color:var(--accent); }
+    .objkpis { display:flex; gap:10px; flex-wrap:wrap; }
+    .objkpi { border:1px solid var(--line); border-radius:var(--radius-sm); padding:8px 13px; }
+    .objkpi .k { font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .objkpi .v { font-size:16px; font-weight:600; color:var(--text); margin-top:2px; }
+    .objrule { font-size:12px; color:var(--muted); margin-top:13px; }
+    .ladder { font-size:10.5px; color:var(--accent-dim); display:inline-flex; align-items:center; gap:5px; margin-top:9px; }
+    .ladder svg { width:13px; height:13px; flex-shrink:0; stroke-width:1.8; }
+    /* ClickUp feed */
+    .cutask { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line-soft); }
+    .cutask:last-child { border-bottom:0; }
+    .cudot { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+    .cutask .nm { font-size:13px; color:var(--text2); flex:1; }
+    .cutask a.nm:hover { color:var(--text); }
+    .custatus { font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+    /* content calendar */
+    .callegend { display:flex; gap:15px; flex-wrap:wrap; margin:-4px 0 16px; font-size:11.5px; color:var(--text2); }
+    .callegend span { display:inline-flex; align-items:center; gap:6px; }
+    .cdotlg { width:9px; height:9px; border-radius:2px; }
+    .cal { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+    .cal .dow { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:center; padding:2px 0 6px; }
+    .cal .day { min-height:80px; border:1px solid var(--line-soft); border-radius:var(--radius-sm); padding:6px; background:var(--glass); }
+    .cal .day.empty { background:transparent; border-color:transparent; }
+    .cal .day.today { border-color:rgba(232,213,163,0.45); }
+    .cal .dnum { font-size:11px; color:var(--muted); margin-bottom:4px; }
+    .cal .day.today .dnum { color:var(--accent); font-weight:600; }
+    .cevt { font-size:10px; line-height:1.25; padding:3px 5px; border-radius:4px; margin-bottom:3px; color:var(--text); border-left:2px solid var(--accent-dim); background:var(--glass-h); }
+    @media (max-width:760px){ .cal .day { min-height:auto; } .cevt { font-size:0; padding:3px; } .cevt::before{ content:'•'; font-size:13px; } }
 
     /* ---------- Trends ---------- */
     .tcard { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:17px 19px; }
@@ -399,6 +430,7 @@
       layers:'M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
       zap:'M13 2L4 14h7l-1 8 10-12h-7z',
       trend:'M22 7l-8.5 8.5-4-4L2 19M16 7h6v6',
+      calendar:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4',
     };
     const svg = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${p.split('M').filter(Boolean).map(d=>'<path d="M'+d+'"/>').join('')}</svg>`;
 
@@ -772,23 +804,86 @@
       );
     };
 
-    S.commandcenter = ()=>{ const cc=D.commandCenter||{};
+    S.commandcenter = ()=>{ const cc=D.commandCenter||{}; const cu=(L.clickup)||null; const ig=(L.instagram)||null; const obj=cc.objectives||{};
+      const sources = (cc.sources||[]).slice();
+      if(cu) sources.push({name:'ClickUp (tasks)', how:'Live · source of truth', tone:'accent'});
+      if(ig) sources.push({name:'Instagram (@'+ig.username+')', how:'Live Graph API', tone:'accent'});
+      const ladderArrow = svg('M12 19V5M5 12l7-7 7 7');
       return frag(
         sectionHead('Command Center','The daily action queue', cc.intro),
-        h('div',{class:'srchealth'}, (cc.sources||[]).map(s=>h('div',{class:'s'},
+        obj.northStar? h('div',{class:'objbar'},
+          h('div',{class:'ns',html:'North star · <b>'+obj.northStar+'</b>'+(obj.brag?'<br>The brag · '+obj.brag:'')}),
+          h('div',{class:'objkpis'}, (obj.kpis||[]).map(k=>h('div',{class:'objkpi'}, h('div',{class:'k'},k.k), h('div',{class:'v'},k.v)))),
+          obj.rule? h('div',{class:'objrule'}, obj.rule):null) : null,
+        h('div',{class:'srchealth'}, sources.map(s=>h('div',{class:'s'},
           h('span',{class:'dot '+(s.tone==='accent'?'live':'cached')}), h('span',{}, s.name), h('span',{class:'how'},'· '+s.how)))),
-        blocktitle('Action queue · ranked by leverage'),
+        blocktitle('Action queue · ranked by goal-impact'),
         h('div',{class:'card flat'}, (cc.items||[]).map(it=>h('div',{class:'cmd'+(it.done?' done':'')},
           it.done ? h('div',{class:'rk done',html:svg('M20 6L9 17l-5-5')}) : h('div',{class:'rk '+(it.sev==='high'?'high':'med')}, it.rank),
           h('div',{},
             h('h3',{}, it.title),
             h('div',{class:'cmeta'}, chip(it.owner,'muted'), chip(it.status, it.done||/ready|shipp|done/i.test(it.status)?'success':/block/i.test(it.status)?'error':'warn'), it.targets?chip('targets: '+it.targets,'accent'):null),
-            h('p',{style:'margin:0;color:var(--text2);font-size:13.5px'}, it.body))
+            h('p',{style:'margin:0;color:var(--text2);font-size:13.5px'}, it.body),
+            it.ladder? h('div',{class:'ladder',html: ladderArrow+'<span>'+it.ladder+'</span>'}):null)
         ))),
+        cu? blocktitle('Live from ClickUp · Ablo Studio (source of truth)') : null,
+        cu? h('div',{class:'card flat'},
+          h('div',{class:'chips',style:'margin-bottom:14px'}, Object.keys(cu.counts||{}).map(k=>chip(k+': '+cu.counts[k], /progress/i.test(k)?'accent':/done|review/i.test(k)?'success':'muted'))),
+          frag(...(cu.open||[]).map(t=>h('div',{class:'cutask'},
+            h('span',{class:'cudot',style:'background:'+(t.color||'var(--muted)')}),
+            t.url? h('a',{class:'nm',href:t.url,target:'_blank',rel:'noopener'}, t.name) : h('span',{class:'nm'},t.name),
+            t.due? h('span',{class:'custatus'}, 'due '+t.due):null,
+            h('span',{class:'custatus'}, t.status)))),
+          h('a',{class:'linkout',href:cu.listUrl,target:'_blank',rel:'noopener',html:'Open the list in ClickUp '+svg('M7 17L17 7M7 7h10v10')})
+        ) : null,
         blocktitle('The daily loop'),
         h('div',{class:'callout'}, h('div',{class:'tag'},'Self-improving routine'), h('p',{},cc.loop)),
         cc.playbook? blocktitle('Daily playbook · what the agent runs every day') : null,
         cc.playbook? h('div',{class:'card flat'}, (cc.playbook||[]).map(p=>h('div',{class:'kv'}, h('div',{class:'k'}, p.step), h('div',{class:'v'}, h('b',{style:'color:var(--text)'}, p.title+'. '), p.detail)))) : null
+      );
+    };
+
+    S.calendar = ()=>{ const cal=D.contentCalendar||{}; const ig=(L.instagram)||null;
+      const items=cal.items||[];
+      const COLORS={Instagram:'#e0a8c8', LinkedIn:'#7fb1e6', Email:'#e8d5a3', Blog:'#9fe0bd', Campaign:'#e8b483'};
+      const colorOf=ch=>COLORS[ch]||'var(--accent-dim)';
+      // group items by ISO date
+      const byDate={}; items.forEach(it=>{ (byDate[it.date]=byDate[it.date]||[]).push(it); });
+      // build the month grid for the month with the most items (the seeded plan)
+      const monthKey=(items[0]||{}).date ? items[0].date.slice(0,7) : '2026-06';
+      const [yy,mm]=monthKey.split('-').map(Number);
+      const first=new Date(yy, mm-1, 1), daysIn=new Date(yy, mm, 0).getDate();
+      const lead=first.getDay(); // 0=Sun
+      const todayISO=(D.meta&&D.meta.updatedISO)? D.meta.updatedISO.slice(0,10):'';
+      const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const cells=[];
+      DOW.forEach(d=>cells.push(h('div',{class:'dow'},d)));
+      for(let i=0;i<lead;i++) cells.push(h('div',{class:'day empty'}));
+      for(let d=1;d<=daysIn;d++){
+        const iso=monthKey+'-'+String(d).padStart(2,'0');
+        const evts=byDate[iso]||[];
+        cells.push(h('div',{class:'day'+(iso===todayISO?' today':'')+(evts.length?' has':'')},
+          h('div',{class:'dnum'}, String(d)),
+          ...evts.map(e=>h('div',{class:'cevt',style:'border-left-color:'+colorOf(e.channel),title:e.channel+': '+e.title}, e.title))));
+      }
+      const monthName=first.toLocaleString('en-US',{month:'long',year:'numeric'});
+      return frag(
+        sectionHead('Content Calendar','What goes out, and when', cal.note),
+        h('div',{class:'freshness'},
+          ig? h('span',{class:'pill'}, h('span',{class:'dot live'}), 'Instagram @'+ig.username+' · '+(ig.followers||0).toLocaleString()+' followers'):null,
+          cal.updated? h('span',{},'Updated '+cal.updated):null),
+        ig&&ig.postNote? h('div',{class:'callout warn'}, h('div',{class:'tag'},'Agent publishing'), h('p',{},ig.postNote)):null,
+        h('div',{class:'blocktitle'}, monthName),
+        h('div',{class:'callegend'}, (cal.channels||Object.keys(COLORS)).map(ch=>h('span',{}, h('span',{class:'cdotlg',style:'background:'+colorOf(ch)}), ch))),
+        h('div',{class:'cal'}, cells),
+        blocktitle('Upcoming, in order'),
+        h('div',{class:'card flat'}, items.slice().sort((a,b)=>a.date<b.date?-1:1).map(it=>h('div',{class:'cutask'},
+          h('span',{class:'cudot',style:'background:'+colorOf(it.channel)}),
+          h('span',{class:'nm'}, it.title),
+          h('span',{class:'custatus'}, it.channel),
+          h('span',{class:'custatus'}, it.date.slice(5)),
+          it.owner? h('span',{class:'custatus'}, it.owner):null,
+          chip(it.status, /sched|live|publish/i.test(it.status)?'success':'muted'))))
       );
     };
 
@@ -1032,6 +1127,7 @@
         {id:'funnel',label:'Funnel',icon:I.funnel},
         {id:'lifecycle',label:'Lifecycle',icon:I.mail},
         {id:'channels',label:'Channels',icon:I.layers},
+        {id:'calendar',label:'Content Calendar',icon:I.calendar},
         {id:'experiments',label:'Experiments',icon:I.flask},
         {id:'campaigns',label:'Campaigns',icon:I.megaphone},
         {id:'content',label:'Content Strategy',icon:I.layout},

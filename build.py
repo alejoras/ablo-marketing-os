@@ -438,6 +438,77 @@ def fetch_lifecycle(env, base):
     return life
 
 
+# ------------------------------------------------------------------ ClickUp --
+ABLO_STUDIO_LIST = "901415977874"  # ClickUp · Space Runners (Ablo) · "Ablo Studio" list
+
+
+def fetch_clickup(env):
+    """Live task feed from the Ablo Studio ClickUp list (source of truth for
+    action items). Read-only. None on failure."""
+    key = env.get("CLICKUP_TOKEN_ABLO")
+    if not key:
+        return None
+    url = (f"https://api.clickup.com/api/v2/list/{ABLO_STUDIO_LIST}/task"
+           "?archived=false&include_closed=false&subtasks=false&order_by=due_date")
+    try:
+        req = urllib.request.Request(url, headers={"Authorization": key})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            tasks = json.loads(r.read().decode()).get("tasks", [])
+    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+        log(f"ClickUp fetch failed ({e})")
+        return None
+
+    counts, rows = {}, []
+    for t in tasks:
+        st = (t.get("status") or {}).get("status", "unknown")
+        counts[st] = counts.get(st, 0) + 1
+        due = t.get("due_date")
+        rows.append({
+            "name": t.get("name", ""),
+            "status": st,
+            "color": (t.get("status") or {}).get("color", ""),
+            "type": (t.get("status") or {}).get("type", ""),
+            "url": t.get("url", ""),
+            "due": _short_date(datetime.fromtimestamp(int(due) / 1000, timezone.utc).isoformat()) if due else "",
+            "assignee": (t.get("assignees") or [{}])[0].get("username", "").strip() if t.get("assignees") else "",
+        })
+    # surface in-progress first, then to-do, capped — the live execution layer
+    order = {"in progress": 0, "to do": 1}
+    active = [r for r in rows if r["type"] != "closed" and r["type"] != "done"]
+    active.sort(key=lambda r: (order.get(r["status"], 2), r["due"] or "9"))
+    log(f"ClickUp: {len(tasks)} task(s) · {counts}")
+    return {"source": "ClickUp · live", "updated": datetime.now(timezone.utc).strftime("%B %-d, %Y"),
+            "listUrl": f"https://app.clickup.com/9003194404/v/li/{ABLO_STUDIO_LIST}",
+            "counts": counts, "open": active[:12], "total": len(tasks)}
+
+
+# -------------------------------------------------------------- Instagram ----
+IG_ACCOUNT = "17841404306089983"  # @ablo.ai business account
+
+
+def fetch_instagram(env):
+    """Live Instagram organic stats via the Meta Graph API (the ads token has
+    account-read scope). Post-level engagement + publishing need an IG token
+    with instagram_content_publish — currently expired. None on failure."""
+    token = env.get("META_ADS_TOKEN")
+    if not token:
+        return None
+    url = (f"https://graph.facebook.com/v21.0/{IG_ACCOUNT}"
+           f"?fields=username,followers_count,media_count&access_token={token}")
+    try:
+        with urllib.request.urlopen(url, timeout=30) as r:
+            d = json.loads(r.read().decode())
+        if "error" in d:
+            return None
+        log(f"Instagram: @{d.get('username')} {d.get('followers_count')} followers")
+        return {"username": d.get("username"), "followers": d.get("followers_count"),
+                "posts": d.get("media_count"), "source": "Meta Graph · live",
+                "canPost": False, "postNote": "Posting + post-level engagement need an IG token with instagram_content_publish scope (the META_IG_TOKEN is expired, refresh it to enable agent posting)."}
+    except (urllib.error.URLError, urllib.error.HTTPError, ValueError) as e:
+        log(f"Instagram fetch failed ({e})")
+        return None
+
+
 # ----------------------------------------------------------------- channels --
 CHANNEL_Q = """
 SELECT coalesce(nullIf(properties.utm_source, ''), '(direct)') AS source,
@@ -522,7 +593,7 @@ GROUP BY d ORDER BY d
 # Fields that cannot be recomputed from the event log — persisted day by day.
 PERSIST_KEYS = ["spend_lifetime", "cpl", "signups_meta", "email_open", "email_click",
                 "email_recipients", "aha_rate", "activation_rate", "payment_rate",
-                "paying_customers"]
+                "paying_customers", "ig_followers"]
 PH_COLS = ["landed", "engaged", "modal", "signups", "models", "imports", "tryons", "downloads", "checkouts"]
 
 
@@ -533,7 +604,7 @@ def _money(s):
         return None
 
 
-def snapshot_history(env, funnel, meta_live, lifecycle):
+def snapshot_history(env, funnel, meta_live, lifecycle, instagram=None):
     """Upsert today's row and rewrite history.jsonl. Returns the last 120 days
     for embedding. PostHog reach is recomputed in full; Meta/Klaviyo/rate
     fields persist forward."""
@@ -580,6 +651,7 @@ def snapshot_history(env, funnel, meta_live, lifecycle):
         "email_click": agg.get("click"),
         "email_recipients": agg.get("recipients"),
         "paying_customers": 0,
+        "ig_followers": (instagram or {}).get("followers"),
         **rates,
     }
     persisted[today] = {k: v for k, v in today_fields.items() if v is not None}
@@ -663,8 +735,12 @@ def build():
     # signup / try-on / checkout). None on failure.
     channels_live = fetch_channel_attribution(env)
 
+    # ClickUp task feed (source of truth for action items) + IG organic stats.
+    clickup = fetch_clickup(env)
+    instagram = fetch_instagram(env)
+
     # Daily time-series — snapshot today and rewrite history.jsonl.
-    history = snapshot_history(env, funnel, meta_live, lifecycle)
+    history = snapshot_history(env, funnel, meta_live, lifecycle, instagram)
 
     # Activation = same-user signup -> try-on (the aha), straight from the funnel.
     activation = "~47%"
@@ -702,6 +778,8 @@ def build():
         "funnel": funnel,
         "lifecycle": lifecycle,
         "channels": channels_live,
+        "clickup": clickup,
+        "instagram": instagram,
         "history": history,
         "refreshedSources": {
             "posthog": posthog_live,
@@ -709,6 +787,8 @@ def build():
             "funnel": funnel_live,
             "klaviyo": klaviyo_live,
             "channels": channels_live is not None,
+            "clickup": clickup is not None,
+            "instagram": instagram is not None,
             "history": history.get("phLive", False),
         },
     }

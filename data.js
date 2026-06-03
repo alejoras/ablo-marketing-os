@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T20:07:57.876297+00:00"
+    "updatedISO": "2026-06-03T20:16:21.307241+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -51,7 +51,7 @@ window.ABLO_OS = {
       }
     ],
     "currentFocus": [
-      "Fix the signup-modal drop. Only 70 of 163 signup-modal opens finish, and the email magic-link path is leaky (69 requested a magic link, only 26 made it in). Promote Google sign-in, demote email. The single highest-leverage fix on the live funnel.",
+      "Fix the signup-modal drop. Only 70 of 164 signup-modal opens finish, and the email magic-link path is leaky (69 requested a magic link, only 26 made it in). Promote Google sign-in, demote email. The single highest-leverage fix on the live funnel.",
       "Close the try-on activation gap. 86 entered the studio, 48 generated a model (44% never do). Find the broken or slow control before the first generate. Free-tier credit rebalance shipped to give new users two full generations.",
       "Run the price-ask test. Manually onboard 5 kids founders and 5 swim / size-inclusive founders, watch them hit try-on, then ask what they would pay. Free signups tell us almost nothing about revenue.",
       "Find one repeatable acquisition channel with stable CAC. The autopilot plus a $200/week validation budget is the test rig."
@@ -2108,7 +2108,7 @@ window.ABLO_OS = {
           "verdict": "done",
           "doneSignal": true,
           "evidence": [
-            "experiment: modal completion 33.3% -> 44.0% (+10.6 pts)",
+            "experiment: modal completion 33.3% -> 43.5% (+10.1 pts)",
             "ClickUp: “📊 Experiment: Google button on sign-up modal (before/after)” is in progress"
           ],
           "disagree": false,
@@ -2705,10 +2705,10 @@ window.ABLO_OS = {
         "metric": "signup-modal completion",
         "started": "May 27, 2026",
         "hypothesis": "Promoting Continue with Google to the primary action and dropping email/password (magic link kept as a secondary link) lifts signup-modal completion. The magic-link path forced an inbox round-trip most people never returned from. Shipped May 27 (Google added), May 28 (email/password removed).",
-        "signal": "Modal completion before May 27: 33% (22/66). After: 44% (40/91). Change: +11 pts.",
-        "delta": 10.6,
+        "signal": "Modal completion before May 27: 33% (22/66). After: 43% (40/92). Change: +10 pts.",
+        "delta": 10.1,
         "before": 33.3,
-        "after": 44.0,
+        "after": 43.5,
         "shipped": true
       }
     ],
@@ -2772,10 +2772,10 @@ window.ABLO_OS = {
           "sub": "$pageview",
           "group": "Acquire",
           "counts": {
-            "d7": 277,
-            "d30": 785,
-            "d90": 785,
-            "all": 785
+            "d7": 279,
+            "d30": 788,
+            "d90": 788,
+            "all": 788
           }
         },
         {
@@ -2784,10 +2784,10 @@ window.ABLO_OS = {
           "sub": "cta_clicked",
           "group": "Acquire",
           "counts": {
-            "d7": 74,
-            "d30": 182,
-            "d90": 182,
-            "all": 182
+            "d7": 75,
+            "d30": 183,
+            "d90": 183,
+            "all": 183
           },
           "benchmark": "1 in 5 visitors engage"
         },
@@ -2797,10 +2797,10 @@ window.ABLO_OS = {
           "sub": "signup_modal_opened",
           "group": "Acquire",
           "counts": {
-            "d7": 71,
-            "d30": 163,
-            "d90": 163,
-            "all": 163
+            "d7": 72,
+            "d30": 164,
+            "d90": 164,
+            "all": 164
           }
         },
         {
@@ -3125,7 +3125,7 @@ window.ABLO_OS = {
         },
         {
           "channel": "Meta Ads",
-          "users": 440,
+          "users": 443,
           "signups": 20,
           "tryons": 7,
           "checkouts": 0,
@@ -3475,12 +3475,12 @@ window.ABLO_OS = {
         },
         {
           "date": "2026-06-03",
-          "landed": 56,
-          "engaged": 19,
-          "modal": 19,
+          "landed": 60,
+          "engaged": 21,
+          "modal": 20,
           "signups": 7,
           "models": 5,
-          "imports": 3,
+          "imports": 4,
           "tryons": 4,
           "downloads": 1,
           "checkouts": 0,

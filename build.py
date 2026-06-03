@@ -778,6 +778,32 @@ def snapshot_history(env, funnel, meta_live, lifecycle, instagram=None, paying=N
     return {"rows": rows[-120:], "updated": today, "phLive": bool(rows_ph)}
 
 
+# Spend from finished ad flights. The autopilot's spend_lifetime is the CURRENT
+# flight only and resets to ~0 when a new flight starts, so a day where it drops
+# vs the prior day marks a closed flight; the prior day's value was that flight's
+# final spend. This auto-accumulates closed flights from history -- no manual
+# bumping ever. PRE_HISTORY covers flights that closed before history.jsonl began
+# (a fixed historical fact that never changes).
+CLOSED_FLIGHTS_PRE_HISTORY = 631.32
+
+
+def _closed_flights_spend(history_rows):
+    total = CLOSED_FLIGHTS_PRE_HISTORY
+    prev = None
+    for r in history_rows:
+        s = r.get("spend_lifetime")
+        if s is None:
+            continue
+        try:
+            s = float(s)
+        except (TypeError, ValueError):
+            continue
+        if prev is not None and s < prev - 0.01:  # spend dropped = new flight = prior flight closed
+            total += prev
+        prev = s
+    return total
+
+
 # ----------------------------------------------------------------- learning --
 # Self-improvement memory. state/lessons.jsonl is an append-only, git-tracked
 # ledger the marketing-os-refresh agent writes: falsifiable `prediction` records
@@ -1049,10 +1075,10 @@ def build():
 
     # Paid spend sub-line: the autopilot reports only the CURRENT flight's
     # lifetime (it resets when a new campaign starts), so anchor all-time with the
-    # sum of closed flights + the live flight. Bump CLOSED_FLIGHTS_SPEND when a
-    # flight ends. Spend is context here, not a hero metric: CPL + weekly burn are
-    # what the call should act on.
-    CLOSED_FLIGHTS_SPEND = 631.32  # flights closed before Jun 2026 (prior signup-launch)
+    # closed-flight total (auto-derived from history, no manual bumping) + the live
+    # flight. Spend is context here, not a hero metric: CPL + weekly burn are what
+    # the call should act on.
+    CLOSED_FLIGHTS_SPEND = _closed_flights_spend(history.get("rows", []))
 
     def _spend_sub(spend_str):
         try:

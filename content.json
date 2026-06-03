@@ -2473,7 +2473,8 @@
         "advantage": "The wedge + product-output-as-fuel",
         "channel": "Founder LinkedIn + Meta/IG (paid + organic)",
         "fuel": "Before/after, shot-in-minutes, per-segment demos (F3, F4, F7)",
-        "success": "Stable-CAC signups and activations from Kids/Swim that feed the price-ask test"
+        "success": "Stable-CAC signups and activations from Kids/Swim that feed the price-ask test",
+        "rationale": "The only repeatable signal we have: across two waves, Kids was the cheapest, healthiest funnel and Swim the best CTR. Chosen over menswear (weakest paid pull) and over broad horizontal positioning (free tools own background removal). Confidence: medium, based on engagement, not yet revenue."
       },
       {
         "name": "Prove willingness to pay",
@@ -2483,7 +2484,8 @@
         "advantage": "Fast visual free-trial AHA",
         "channel": "In-product + lifecycle email + 1:1 founder outreach",
         "fuel": "AHA nudge flow + the price-ask interview guide",
-        "success": "First 5 paying customers, ARPU ≥ $50, signup→paid ≥ 8% (the brag)"
+        "success": "First 5 paying customers, ARPU ≥ $50, signup→paid ≥ 8% (the brag)",
+        "rationale": "Free signups tell us nothing about revenue, and the brag is unmeasurable without a paid signal. Run as co-lead with Bet 1, because MKT1 revenue-lever logic says do lever 1 (TOF) and lever 2 (conversion) together: TOF without conversion just burns budget. Confidence: high that it is necessary; the open question is the price."
       },
       {
         "name": "Build the credibility flywheel",
@@ -2493,11 +2495,13 @@
         "advantage": "Fuel advantage (unique POV + data) + founder distribution",
         "channel": "SEO / owned + Founder LinkedIn + outreach",
         "fuel": "The State of On-Model Imagery report (F1), comparison (F6), build-in-public (F10), calculator (F9)",
-        "success": "A linkable, cited asset that drives inbound and lowers CAC over time"
+        "success": "A linkable, cited asset that drives inbound and lowers CAC over time",
+        "rationale": "The product's own output is our cheapest, most credible fuel and founder LinkedIn is the proven engine. Lower priority because it compounds slowly and does not directly convert the first 5 customers; it de-risks CAC over time. Confidence: medium."
       }
     ],
     "channelNote": "Channel strategy uses MKT1's five growth engines (Inbound, Outbound, Product Virality, Events, Ecosystem). For Ablo today: Founder LinkedIn is the primary engine, Meta/IG is the demand engine, SEO/owned is the compounding bet, lifecycle is activation. Full scorecard and status in the Channels tab.",
-    "frameworkNote": "Method: MKT1's seven strategy exercises (company overview, ICP prioritization, marketing advantages, perceptions, positioning, revenue levers, big bets). The first six live across Overview, ICP, Positioning, Messaging, and Goals. This tab is exercise 7, the Big Bets, where strategy becomes coordinated action."
+    "frameworkNote": "Method: MKT1's seven strategy exercises (company overview, ICP prioritization, marketing advantages, perceptions, positioning, revenue levers, big bets). The first six live across Overview, ICP, Positioning, Messaging, and Goals. This tab is exercise 7, the Big Bets, where strategy becomes coordinated action.",
+    "coherence": "Coherence rule (audited weekly): every initiative must ladder UP. Goal → revenue lever → Big Bet → initiative/experiment → fuel. A tactic that does not ladder to a Big Bet is a Random Act of Marketing (MKT1) and gets cut or re-scoped. A Big Bet with weak rationale, or a goal no Big Bet serves, is flagged for review."
   },
   "agents": {
     "intro": "Read this first. This page orients an AI agent to the Marketing OS before it acts. The OS is built to be pinged and used by agents continuously.",
@@ -2535,6 +2539,10 @@
       {
         "k": "Freshness",
         "v": "The OS rebuilds daily. Each tab shows an updated stamp. If a live source failed, the curated fallback is shown and labelled."
+      },
+      {
+        "k": "Frameworks",
+        "v": "Ground strategy and content in Emily Kramer's MKT1 frameworks, do not freestyle when a framework exists. Load the matching skill on demand: mkt1-big-bets, mkt1-positioning, mkt1-channel-strategy, mkt1-icp-prioritization, mkt1-perceptions, mkt1-revenue-levers, mkt1-gaccs, and marketing-strategy. Full reference: the GTM Bible at Brain/references/gtm-bible-emily-kramer-mkt1.md."
       }
     ],
     "canonical": [

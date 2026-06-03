@@ -1157,6 +1157,7 @@
         blocktitle('Marketing advantages'),
         table(['#','Advantage','Category','Strength','Potential','Moat'], (g.advantages||[]).map(a=>[a.n,{html:'<b style="color:var(--text)">'+a.name+'</b>'},a.category,a.strength,{html:'<span style="color:var(--accent)">'+a.potential+'</span>'},a.moat])),
         blocktitle('Big Bets · where strategy becomes action'),
+        g.coherence? h('div',{class:'callout',style:'margin-bottom:16px'}, h('div',{class:'tag'},'Coherence rule'), h('p',{},g.coherence)) : null,
         h('div',{class:'stack'}, (g.bigBets||[]).map(b=>card({cls:b.priority==='High'?'lead':'',children:[
           h('div',{style:'display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px'}, h('h3',{style:'margin:0'},b.name), chip('Priority: '+b.priority, b.priority==='High'?'accent':'muted')),
           h('div',{class:'card flat',style:'padding:2px 16px'},
@@ -1165,7 +1166,8 @@
             h('div',{class:'kv'},h('div',{class:'k'},'Advantage'),h('div',{class:'v'},b.advantage)),
             h('div',{class:'kv'},h('div',{class:'k'},'Channel'),h('div',{class:'v'},b.channel)),
             h('div',{class:'kv'},h('div',{class:'k'},'Fuel'),h('div',{class:'v'},b.fuel)),
-            h('div',{class:'kv'},h('div',{class:'k'},'Success'),h('div',{class:'v',style:'color:var(--text)'},b.success)))
+            h('div',{class:'kv'},h('div',{class:'k'},'Success'),h('div',{class:'v',style:'color:var(--text)'},b.success)),
+            b.rationale? h('div',{class:'kv'},h('div',{class:'k'},'Rationale'),h('div',{class:'v'},b.rationale)) : null)
         ]}))),
         blocktitle('Channels'),
         card({cls:'flat',body:g.channelNote}),

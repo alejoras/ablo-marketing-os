@@ -738,10 +738,28 @@
       );
     };
 
-    S.channels = ()=>{ const c=D.channels||{};
+    S.channels = ()=>{ const c=D.channels||{}; const att=(L.channels)||null; const attLive=(L.refreshedSources||{}).channels;
+      const maxSu=att? Math.max(1, ...att.attribution.map(x=>x.signups)) : 1;
+      const attTable = att ? h('div',{class:'table-wrap',style:'margin-top:14px'},
+        (function(){ const t=h('table'); const hr=h('tr'); ['Channel','Visitors','Signups','Try-ons','Checkouts','Signup share'].forEach((x,i)=>hr.append(h('th',{style:i?'text-align:right':''},x))); t.append(h('thead',{},hr));
+          const tb=h('tbody'); att.attribution.forEach(r=>{ const tr=h('tr');
+            tr.append(h('td',{class:'lead-cell'}, r.channel));
+            [r.users,r.signups,r.tryons,r.checkouts].forEach(v=>tr.append(h('td',{style:'text-align:right'}, String(v))));
+            tr.append(h('td',{style:'text-align:right'}, h('div',{style:'display:flex;align-items:center;gap:8px;justify-content:flex-end'},
+              h('div',{style:'width:56px;height:6px;border-radius:9px;background:var(--glass);overflow:hidden'}, h('div',{style:'height:100%;width:'+(r.signups/maxSu*100).toFixed(0)+'%;background:var(--accent-dim);border-radius:9px'})),
+              h('span',{style:'min-width:32px'}, (r.signupShare||0)+'%'))));
+            tb.append(tr); }); t.append(tb); return t; })()) : null;
       return frag(
         sectionHead('Channels','Every surface, one scorecard', c.intro),
-        c.updated? h('div',{class:'freshness'}, h('span',{class:'pill'}, h('span',{class:'dot cached'}), 'Updated '+c.updated)):null,
+        h('div',{class:'freshness'},
+          att? h('span',{class:'pill'}, h('span',{class:'dot '+(attLive?'live':'cached')}), 'Attribution · '+(att.source||'PostHog UTM')):null,
+          ((att&&att.updated)||c.updated)? h('span',{},'Updated '+((att&&att.updated)||c.updated)):null),
+        att? frag(
+          blocktitle('Live acquisition by channel · signup-attributed'),
+          att.insight? h('div',{class:'callout warn'}, h('div',{class:'tag'},'Attribution signal'), h('p',{html:'<b>'+att.insight+'</b>'})):null,
+          attTable
+        ):null,
+        blocktitle('Channel scorecard'),
         h('div',{class:'stack'}, (c.rows||[]).map(r=>card({cls:r.tone==='accent'?'lead':'',children:[
           h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px'},
             h('h3',{style:'margin:0'},r.name),

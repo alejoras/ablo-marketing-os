@@ -48,8 +48,8 @@
       }
     ],
     "currentFocus": [
-      "Fix the signup-modal drop. Only 46 of 127 opens finish, and the email magic-link path leaks almost everyone (52 requested, 3 logged in). Promote Google sign-in, demote email. The single highest-leverage fix on the live funnel.",
-      "Close the try-on activation gap. 59 entered the studio, 28 generated a model (53% never do). Find the broken or slow control before the first generate. Free-tier credit rebalance shipped to give new users two full generations.",
+      "Fix the signup-modal drop. Only {{signup|64}} of {{intent|151}} signup-modal opens finish, and the email magic-link path is leaky ({{mlReq|65}} requested a magic link, only {{mlIn|24}} made it in). Promote Google sign-in, demote email. The single highest-leverage fix on the live funnel.",
+      "Close the try-on activation gap. {{studio|80}} entered the studio, {{model|43}} generated a model ({{studioNoModelPct|46}}% never do). Find the broken or slow control before the first generate. Free-tier credit rebalance shipped to give new users two full generations.",
       "Run the price-ask test. Manually onboard 5 kids founders and 5 swim / size-inclusive founders, watch them hit try-on, then ask what they would pay. Free signups tell us almost nothing about revenue.",
       "Find one repeatable acquisition channel with stable CAC. The autopilot plus a $200/week validation budget is the test rig."
     ]

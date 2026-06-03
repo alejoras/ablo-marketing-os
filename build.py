@@ -305,6 +305,74 @@ def fetch_funnel(env, base):
     return funnel
 
 
+def fetch_magiclink(env):
+    """Distinct persons who requested an email magic link, and how many of
+    those made it into the app (login OR signup completed). This is the live
+    measure behind the 'email path is leaky' claim in the Overview's Current
+    Focus. Returns {'req': int, 'in': int} or None on failure (curated
+    fallbacks in content.json then keep the narrative intact)."""
+    q = """
+        SELECT countIf(req>0) AS requested,
+               countIf(req>0 AND (login>0 OR su>0)) AS in_app
+        FROM (
+          SELECT person_id,
+            maxIf(1, event='magic_link_requested') req,
+            maxIf(1, event='login_completed') login,
+            maxIf(1, event='signup_completed') su
+          FROM events WHERE timestamp >= now() - INTERVAL 365 DAY
+          GROUP BY person_id
+        )
+    """.strip()
+    rows = _hogql(env, q)
+    if not rows or not rows[0]:
+        return None
+    try:
+        req, in_app = int(rows[0][0]), int(rows[0][1])
+    except (ValueError, TypeError, IndexError):
+        return None
+    log(f"PostHog magic-link: {req} requested, {in_app} made it in")
+    return {"req": req, "in": in_app}
+
+
+# Fill {{key|fallback}} placeholders from a vars dict. Missing or None values
+# fall back to the inline literal, so curated prose survives a failed live pull.
+_TPL_RE = re.compile(r"\{\{(\w+)\|([^}]*)\}\}")
+
+
+def apply_template_vars(text, variables):
+    def repl(m):
+        v = variables.get(m.group(1))
+        return str(v) if v is not None else m.group(2)
+    return _TPL_RE.sub(repl, text)
+
+
+def bind_current_focus(content, funnel, magiclink):
+    """Bind the live funnel figures into the Overview's curated Current Focus
+    so it can never silently drift from the Funnel tab. Reads the same `funnel`
+    object the site renders (which itself falls back to the curated block), plus
+    the magic-link conversion. Pure string substitution over {{key|fallback}}."""
+    def stage_all(key):
+        for s in funnel.get("stages", []):
+            if s.get("key") == key:
+                return (s.get("counts") or {}).get("all")
+        return None
+
+    studio, model = stage_all("studio"), stage_all("model")
+    pct = round((studio - model) / studio * 100) if studio and model is not None else None
+    variables = {
+        "intent": stage_all("intent"),
+        "signup": stage_all("signup"),
+        "studio": studio,
+        "model": model,
+        "studioNoModelPct": pct,
+        "mlReq": magiclink.get("req") if magiclink else None,
+        "mlIn": magiclink.get("in") if magiclink else None,
+    }
+    cf = content.get("overview", {}).get("currentFocus")
+    if isinstance(cf, list):
+        content["overview"]["currentFocus"] = [apply_template_vars(s, variables) for s in cf]
+
+
 # ------------------------------------------------------------------- Klaviyo --
 KLAVIYO_REV = "2024-10-15"
 TRYON_METRIC = "T3S8Cw"  # 'Try-on Completed' — the aha, used as flow conversion metric
@@ -735,6 +803,10 @@ def build():
     lifecycle = fetch_lifecycle(env, content.get("lifecycleCurated", {}))
     funnel_live = funnel.get("source", "").startswith("PostHog · live")
     klaviyo_live = lifecycle.get("source", "").startswith("Klaviyo · live")
+
+    # Keep the Overview's Current Focus numbers bound to the live funnel so the
+    # narrative and the Funnel tab can never disagree (the coherence rule).
+    bind_current_focus(content, funnel, fetch_magiclink(env))
 
     # Live channel attribution from PostHog UTMs (ties each source through to
     # signup / try-on / checkout). None on failure.

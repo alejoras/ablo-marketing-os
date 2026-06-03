@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T07:05:35.207143+00:00"
+    "updatedISO": "2026-06-03T07:40:34.587795+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -51,8 +51,8 @@ window.ABLO_OS = {
       }
     ],
     "currentFocus": [
-      "Fix the signup-modal drop. Only 46 of 127 opens finish, and the email magic-link path leaks almost everyone (52 requested, 3 logged in). Promote Google sign-in, demote email. The single highest-leverage fix on the live funnel.",
-      "Close the try-on activation gap. 59 entered the studio, 28 generated a model (53% never do). Find the broken or slow control before the first generate. Free-tier credit rebalance shipped to give new users two full generations.",
+      "Fix the signup-modal drop. Only 64 of 151 signup-modal opens finish, and the email magic-link path is leaky (65 requested a magic link, only 24 made it in). Promote Google sign-in, demote email. The single highest-leverage fix on the live funnel.",
+      "Close the try-on activation gap. 80 entered the studio, 43 generated a model (46% never do). Find the broken or slow control before the first generate. Free-tier credit rebalance shipped to give new users two full generations.",
       "Run the price-ask test. Manually onboard 5 kids founders and 5 swim / size-inclusive founders, watch them hit try-on, then ask what they would pay. Free signups tell us almost nothing about revenue.",
       "Find one repeatable acquisition channel with stable CAC. The autopilot plus a $200/week validation budget is the test rig."
     ]
@@ -2630,7 +2630,7 @@ window.ABLO_OS = {
         "metric": "signup-modal completion",
         "started": "May 27, 2026",
         "hypothesis": "Promoting Continue with Google to the primary action and dropping email/password (magic link kept as a secondary link) lifts signup-modal completion. The magic-link path forced an inbox round-trip most people never returned from. Shipped May 27 (Google added), May 28 (email/password removed).",
-        "signal": "Modal completion before May 27: 33% (22/66). After: 44% (34/78). Change: +10 pts."
+        "signal": "Modal completion before May 27: 33% (22/66). After: 43% (34/79). Change: +10 pts."
       }
     ],
     "meta": {
@@ -2687,10 +2687,10 @@ window.ABLO_OS = {
           "sub": "$pageview",
           "group": "Acquire",
           "counts": {
-            "d7": 328,
-            "d30": 756,
-            "d90": 756,
-            "all": 756
+            "d7": 331,
+            "d30": 759,
+            "d90": 759,
+            "all": 759
           }
         },
         {
@@ -2699,10 +2699,10 @@ window.ABLO_OS = {
           "sub": "cta_clicked",
           "group": "Acquire",
           "counts": {
-            "d7": 82,
-            "d30": 169,
-            "d90": 169,
-            "all": 169
+            "d7": 84,
+            "d30": 171,
+            "d90": 171,
+            "all": 171
           },
           "benchmark": "1 in 5 visitors engage"
         },
@@ -2712,10 +2712,10 @@ window.ABLO_OS = {
           "sub": "signup_modal_opened",
           "group": "Acquire",
           "counts": {
-            "d7": 77,
-            "d30": 150,
-            "d90": 150,
-            "all": 150
+            "d7": 78,
+            "d30": 151,
+            "d90": 151,
+            "all": 151
           }
         },
         {
@@ -3040,7 +3040,7 @@ window.ABLO_OS = {
         },
         {
           "channel": "Meta Ads",
-          "users": 412,
+          "users": 414,
           "signups": 17,
           "tryons": 5,
           "checkouts": 0,
@@ -3081,8 +3081,8 @@ window.ABLO_OS = {
       "listUrl": "https://app.clickup.com/9003194404/v/li/901415977874",
       "counts": {
         "in progress": 6,
-        "to do": 20,
-        "done": 15,
+        "to do": 22,
+        "done": 7,
         "review": 6
       },
       "open": [
@@ -3141,6 +3141,33 @@ window.ABLO_OS = {
           "assignee": "Alejo Escrivá"
         },
         {
+          "name": "Pedir a Jason: evento `Subscription Started` -> Klaviyo (gate del flow de conversión)",
+          "status": "to do",
+          "color": "#87909e",
+          "type": "open",
+          "url": "https://app.clickup.com/t/86ba90xk4",
+          "due": "",
+          "assignee": "Alejo Escrivá"
+        },
+        {
+          "name": "Task-keeper routine log",
+          "status": "to do",
+          "color": "#87909e",
+          "type": "open",
+          "url": "https://app.clickup.com/t/86ba90xcx",
+          "due": "",
+          "assignee": "Alejo Escrivá"
+        },
+        {
+          "name": "Marketing OS = the decision layer for ads (one brain, human sees only exceptions)",
+          "status": "to do",
+          "color": "#87909e",
+          "type": "open",
+          "url": "https://app.clickup.com/t/86ba90t2v",
+          "due": "",
+          "assignee": "Alejo Escrivá"
+        },
+        {
           "name": "Build out the self-improving marketing-agent loop (Command Center auto-rewrite)",
           "status": "to do",
           "color": "#87909e",
@@ -3166,36 +3193,9 @@ window.ABLO_OS = {
           "url": "https://app.clickup.com/t/86ba8vjqc",
           "due": "",
           "assignee": "Alejo Escrivá"
-        },
-        {
-          "name": "Autopilot v4: AI-generated creatives + multi-angle ad testing",
-          "status": "to do",
-          "color": "#87909e",
-          "type": "open",
-          "url": "https://app.clickup.com/t/86ba8vjq1",
-          "due": "",
-          "assignee": "Alejo Escrivá"
-        },
-        {
-          "name": "Help Josh build the demand-testing step in his automation",
-          "status": "to do",
-          "color": "#87909e",
-          "type": "open",
-          "url": "https://app.clickup.com/t/86ba823dh",
-          "due": "",
-          "assignee": "Alejo Escrivá"
-        },
-        {
-          "name": "Cross-device PostHog attribution: distinct_id through magic-link URL",
-          "status": "to do",
-          "color": "#87909e",
-          "type": "open",
-          "url": "https://app.clickup.com/t/86ba2wp4t",
-          "due": "",
-          "assignee": "Alejo Escrivá"
         }
       ],
-      "total": 47
+      "total": 41
     },
     "instagram": {
       "username": "ablo.ai",
@@ -3389,9 +3389,9 @@ window.ABLO_OS = {
         },
         {
           "date": "2026-06-03",
-          "landed": 23,
-          "engaged": 5,
-          "modal": 5,
+          "landed": 25,
+          "engaged": 6,
+          "modal": 6,
           "signups": 1,
           "models": 0,
           "imports": 0,

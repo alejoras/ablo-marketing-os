@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T05:11:17.256591+00:00"
+    "updatedISO": "2026-06-03T05:25:44.585106+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -464,7 +464,7 @@ window.ABLO_OS = {
     "agentPrompt": "You are writing for Ablo Studio, self-serve AI on-model imagery for fashion brands. Voice: editorial, calm, premium, proof-forward. Think SSENSE, Off-White, Linear, Arc'teryx. Lead with the result, not the process. Sparse beats complete; when in doubt, cut a sentence. Hard rules: never use em dashes (use commas, periods, parentheses, or restructure); keep acronyms as acronyms (ICP, DTC, CAC); no exclamation points; no AI hype words (revolutionary, game-changing, unleash); no generic-SaaS or startup-bro tone. Lead every message from the one wedge: campaign-ready, on-model photos of bodies a brand cannot easily or cheaply shoot (babies, plus and diverse bodies, swim fit) in minutes, not background removal (free tools own that). Audience: founder / owner of a small US fashion brand (kids, swim, size-inclusive). Proof we can use today: the output itself, the launch film, 50 free credits no card. Do not claim Crocs or Balmain as Studio customers (parent-level only). Do not write to the old $1,250 price."
   },
   "experimentsCurated": {
-    "intro": "Live experiments and the autopilot's funnel intelligence refresh automatically each week. Below is the standing test backlog and the funnel fixes in flight.",
+    "intro": "Every experiment carries a stable ID. Live PostHog A/B tests and tracked before/after ships refresh on each run, alongside the standing backlog.",
     "liveFallback": [
       {
         "name": "Studio onboarding coachmarks",
@@ -474,16 +474,11 @@ window.ABLO_OS = {
         "metric": "model_generated",
         "started": "May 30, 2026",
         "url": "https://us.posthog.com/project/419152/experiments/374260",
-        "signal": "Collecting data. Exposures are low (single digits) while paid delivery is paused, so results are not yet conclusive."
+        "signal": "Collecting data. Exposures are low (single digits) while paid delivery is paused, so results are not yet conclusive.",
+        "id": "PH-374260"
       }
     ],
     "backlog": [
-      {
-        "title": "Signup modal: Google sign-in primary",
-        "hyp": "Promoting \"Continue with Google\" to a full-width primary button and demoting email magic-link to a small secondary link will lift modal completion above 36%. The magic-link path forces an inbox round-trip most people never return from.",
-        "owner": "Product (Deniz / Jason)",
-        "status": "Queued / shipping"
-      },
       {
         "title": "Try-on activation: unblock the first generate",
         "hyp": "There is a control on /studio that looks clickable but does not respond or is too slow before the first \"Generate Model\". Fixing it lifts the 53% who enter the studio but never generate.",
@@ -502,7 +497,17 @@ window.ABLO_OS = {
         "owner": "Product (backlog)",
         "status": "Backlog"
       }
-    ]
+    ],
+    "signupExperiment": {
+      "id": "OS-SIGNUP-GOOGLE",
+      "name": "Signup modal: Google primary",
+      "status": "Shipped, measuring",
+      "flag": "full rollout (before/after)",
+      "metric": "signup-modal completion",
+      "started": "May 27, 2026",
+      "hypothesis": "Promoting Continue with Google to the primary action and dropping email/password (magic link kept as a secondary link) lifts signup-modal completion. The magic-link path forced an inbox round-trip most people never returned from. Shipped May 27 (Google added), May 28 (email/password removed).",
+      "signal": "Measuring before vs after May 27. Live before/after completion computes on each refresh."
+    }
   },
   "campaignsCurated": {
     "name": "Signup Launch (2026-05)",
@@ -1941,6 +1946,53 @@ window.ABLO_OS = {
         "how": "PostHog experiments API",
         "tone": "default"
       }
+    ],
+    "playbook": [
+      {
+        "step": "01",
+        "title": "Orient",
+        "detail": "Pull all live data, re-read the goal (first paying customer, CAC < $300, signup→paid ≥ 8%). Everything ranks against it."
+      },
+      {
+        "step": "02",
+        "title": "Experiments",
+        "detail": "Check every experiment by ID, report how it trends, conclude the ones with enough sample, queue the follow-up. Do not call a winner under-powered."
+      },
+      {
+        "step": "03",
+        "title": "Funnel",
+        "detail": "Find the biggest leak by leverage. Correlate each shipped fix to the number it moved. Write concrete improvement hypotheses."
+      },
+      {
+        "step": "04",
+        "title": "Campaigns",
+        "detail": "Read the Meta autopilot. Extract the key insight, flag waste and anomalies (zero-spend days, CPL spikes, budget off the converting segments)."
+      },
+      {
+        "step": "05",
+        "title": "Lifecycle",
+        "detail": "Check Klaviyo flows. Name the highest-leverage email gap (a prepared flow wired to nothing)."
+      },
+      {
+        "step": "06",
+        "title": "Integrity",
+        "detail": "Confirm the key events still fire (signup, model, try-on, purchase_completed). A silently broken metric corrupts every conclusion."
+      },
+      {
+        "step": "07",
+        "title": "Re-rank",
+        "detail": "Rewrite this queue by leverage. Resolve done items, update statuses with the delta, add new leaks as items."
+      },
+      {
+        "step": "08",
+        "title": "Build the next test",
+        "detail": "Design the next experiment from the top leak (hypothesis, variant, metric, audience). Draft it in PostHog, or spec it if write access is missing."
+      },
+      {
+        "step": "09",
+        "title": "Publish + report",
+        "detail": "Commit and push, log what moved and concluded, summarize in 3 lines. Escalate only money, pricing, access, or user-visible product calls."
+      }
     ]
   },
   "pricing": {
@@ -1998,13 +2050,14 @@ window.ABLO_OS = {
       },
       {
         "label": "Live experiments",
-        "value": "1",
+        "value": "2",
         "sub": "running in PostHog",
         "tone": "default"
       }
     ],
     "experiments": [
       {
+        "id": "PH-374260",
         "name": "Studio onboarding coachmarks",
         "status": "Running",
         "flag": "studio-onboarding-coachmarks",
@@ -2012,6 +2065,16 @@ window.ABLO_OS = {
         "metric": "model_generated",
         "started": "May 30, 2026",
         "url": "https://us.posthog.com/project/419152/experiments/374260"
+      },
+      {
+        "id": "OS-SIGNUP-GOOGLE",
+        "name": "Signup modal: Google primary",
+        "status": "Shipped, measuring",
+        "flag": "full rollout (before/after)",
+        "metric": "signup-modal completion",
+        "started": "May 27, 2026",
+        "hypothesis": "Promoting Continue with Google to the primary action and dropping email/password (magic link kept as a secondary link) lifts signup-modal completion. The magic-link path forced an inbox round-trip most people never returned from. Shipped May 27 (Google added), May 28 (email/password removed).",
+        "signal": "Modal completion before May 27: 33% (22/66). After: 44% (34/77). Change: +11 pts."
       }
     ],
     "meta": {
@@ -2409,6 +2472,53 @@ window.ABLO_OS = {
         }
       ]
     },
+    "channels": {
+      "attribution": [
+        {
+          "channel": "Direct / untagged",
+          "users": 360,
+          "signups": 47,
+          "tryons": 27,
+          "checkouts": 8,
+          "signupShare": 73
+        },
+        {
+          "channel": "Meta Ads",
+          "users": 410,
+          "signups": 17,
+          "tryons": 5,
+          "checkouts": 0,
+          "signupShare": 27
+        },
+        {
+          "channel": "LinkedIn",
+          "users": 11,
+          "signups": 0,
+          "tryons": 0,
+          "checkouts": 0,
+          "signupShare": 0
+        },
+        {
+          "channel": "Instagram (organic)",
+          "users": 25,
+          "signups": 0,
+          "tryons": 0,
+          "checkouts": 0,
+          "signupShare": 0
+        },
+        {
+          "channel": "Email",
+          "users": 1,
+          "signups": 0,
+          "tryons": 0,
+          "checkouts": 0,
+          "signupShare": 0
+        }
+      ],
+      "insight": "73% of signups come from Direct / untagged — acquisition is dominated by untagged / organic traffic, not paid. Tag founder posts and referral links with UTMs to see what is really working, and weigh whether paid is earning its share.",
+      "updated": "June 3, 2026",
+      "source": "PostHog UTM · live"
+    },
     "history": {
       "rows": [
         {
@@ -2622,6 +2732,7 @@ window.ABLO_OS = {
       "meta": true,
       "funnel": true,
       "klaviyo": true,
+      "channels": true,
       "history": true
     }
   }

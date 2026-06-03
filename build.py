@@ -97,6 +97,7 @@ def fetch_experiments(env):
         metric = m.group(1).strip().rstrip(".") if m else _first_metric_name(ex)
         out.append(
             {
+                "id": f"PH-{ex.get('id')}",
                 "name": ex.get("name", "Untitled experiment"),
                 "status": status,
                 "flag": ex.get("feature_flag_key") or "",
@@ -437,6 +438,66 @@ def fetch_lifecycle(env, base):
     return life
 
 
+# ----------------------------------------------------------------- channels --
+CHANNEL_Q = """
+SELECT coalesce(nullIf(properties.utm_source, ''), '(direct)') AS source,
+  count(DISTINCT person_id) AS users,
+  count(DISTINCT if(event = 'signup_completed', person_id, NULL)) AS signups,
+  count(DISTINCT if(event = 'tryon_completed', person_id, NULL)) AS tryons,
+  count(DISTINCT if(event = 'checkout_started', person_id, NULL)) AS checkouts
+FROM events
+WHERE timestamp >= toDateTime('2026-05-01 00:00:00')
+GROUP BY source
+""".strip()
+
+
+def _channel_name(src):
+    s = (src or "").lower()
+    if "meta" in s or s in ("fb", "facebook"):
+        return "Meta Ads"
+    if "linkedin" in s:
+        return "LinkedIn"
+    if s in ("ig", "instagram"):
+        return "Instagram (organic)"
+    if "google" in s or "adwords" in s:
+        return "Google"
+    if "email" in s or "klaviyo" in s:
+        return "Email"
+    if "direct" in s:
+        return "Direct / untagged"
+    return (src or "Other").title()
+
+
+def fetch_channel_attribution(env):
+    """Live per-channel acquisition from PostHog UTM stamps, tied through to
+    signups, try-ons and checkouts. None on failure."""
+    rows = _hogql(env, CHANNEL_Q)
+    if not rows:
+        return None
+    agg = {}
+    for r in rows:
+        if not r:
+            continue
+        name = _channel_name(r[0])
+        a = agg.setdefault(name, {"channel": name, "users": 0, "signups": 0, "tryons": 0, "checkouts": 0})
+        a["users"] += int(r[1]); a["signups"] += int(r[2]); a["tryons"] += int(r[3]); a["checkouts"] += int(r[4])
+    chans = sorted(agg.values(), key=lambda x: x["signups"], reverse=True)
+    total_su = sum(c["signups"] for c in chans) or 1
+    for c in chans:
+        c["signupShare"] = round(c["signups"] / total_su * 100)
+    top = chans[0] if chans else None
+    insight = ""
+    if top and top["signupShare"] >= 40:
+        insight = (f"{top['signupShare']}% of signups come from {top['channel']}"
+                   + (" — acquisition is dominated by untagged / organic traffic, not paid. "
+                      "Tag founder posts and referral links with UTMs to see what is really working, "
+                      "and weigh whether paid is earning its share."
+                      if top["channel"].startswith("Direct") else "."))
+    log(f"PostHog channels: {len(chans)} source(s), top {top['channel'] if top else '-'}")
+    return {"attribution": chans, "insight": insight,
+            "updated": datetime.now(timezone.utc).strftime("%B %-d, %Y"), "source": "PostHog UTM · live"}
+
+
 # ------------------------------------------------------------------ history --
 # Daily distinct-user reach per stage, reconstructed in full from the PostHog
 # event log on every run (self-healing — no drift, no dedupe needed). Non-
@@ -536,6 +597,41 @@ def snapshot_history(env, funnel, meta_live, lifecycle):
     return {"rows": rows[-120:], "updated": today, "phLive": bool(rows_ph)}
 
 
+# ---------------------------------------------------- before/after ship ------
+def fetch_signup_experiment(env, base):
+    """Before/after read on the 'Google primary' signup-modal ship (2026-05-27).
+    Full rollout, not a PostHog A/B, so we measure signup-modal completion before
+    vs after the ship date. Returns base with a live signal, or base on failure."""
+    SHIP = "2026-05-27"
+    q = (
+        "SELECT "
+        "count(DISTINCT if(event='signup_modal_opened' AND ts <  toDateTime('%(s)s'), pid, NULL)) AS ob, "
+        "count(DISTINCT if(event='signup_completed'    AND ts <  toDateTime('%(s)s'), pid, NULL)) AS sb, "
+        "count(DISTINCT if(event='signup_modal_opened' AND ts >= toDateTime('%(s)s'), pid, NULL)) AS oa, "
+        "count(DISTINCT if(event='signup_completed'    AND ts >= toDateTime('%(s)s'), pid, NULL)) AS sa "
+        "FROM (SELECT person_id AS pid, timestamp AS ts, event FROM events "
+        "WHERE event IN ('signup_modal_opened','signup_completed') AND timestamp >= toDateTime('2026-05-18'))"
+    ) % {"s": SHIP}
+    rows = _hogql(env, q)
+    out = dict(base)
+    if not rows or not rows[0]:
+        return out
+    try:
+        ob, sb, oa, sa = [int(x) for x in rows[0]]
+    except (ValueError, TypeError):
+        return out
+    before = (sb / ob * 100) if ob else 0.0
+    after = (sa / oa * 100) if oa else 0.0
+    delta = after - before
+    note = " Low sample while delivery is paused, directional only." if (ob + oa) < 80 else ""
+    out["signal"] = (
+        f"Modal completion before May 27: {before:.0f}% ({sb}/{ob}). "
+        f"After: {after:.0f}% ({sa}/{oa}). Change: {delta:+.0f} pts.{note}"
+    )
+    log(f"signup before/after: {before:.0f}% -> {after:.0f}% ({delta:+.0f} pts)")
+    return out
+
+
 # ------------------------------------------------------------------ build ----
 def build():
     content = json.loads(CONTENT.read_text())
@@ -551,12 +647,21 @@ def build():
         # (auto-upgrades to live once the PostHog key gets experiment:read scope).
         experiments = content.get("experimentsCurated", {}).get("liveFallback", [])
 
+    # Tracked before/after ship (not a PostHog A/B): the Google-primary signup change.
+    sx = content.get("experimentsCurated", {}).get("signupExperiment")
+    if sx:
+        experiments = list(experiments) + [fetch_signup_experiment(env, sx)]
+
     # Live product funnel (PostHog) and lifecycle (Klaviyo), overlaid on the
     # curated fallbacks. Each degrades to its curated block on failure.
     funnel = fetch_funnel(env, content.get("funnelCurated", {}))
     lifecycle = fetch_lifecycle(env, content.get("lifecycleCurated", {}))
     funnel_live = funnel.get("source", "").startswith("PostHog · live")
     klaviyo_live = lifecycle.get("source", "").startswith("Klaviyo · live")
+
+    # Live channel attribution from PostHog UTMs (ties each source through to
+    # signup / try-on / checkout). None on failure.
+    channels_live = fetch_channel_attribution(env)
 
     # Daily time-series — snapshot today and rewrite history.jsonl.
     history = snapshot_history(env, funnel, meta_live, lifecycle)
@@ -596,12 +701,14 @@ def build():
         "meta": meta_live,
         "funnel": funnel,
         "lifecycle": lifecycle,
+        "channels": channels_live,
         "history": history,
         "refreshedSources": {
             "posthog": posthog_live,
             "meta": signups is not None,
             "funnel": funnel_live,
             "klaviyo": klaviyo_live,
+            "channels": channels_live is not None,
             "history": history.get("phLive", False),
         },
     }

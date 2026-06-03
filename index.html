@@ -768,7 +768,9 @@
             h('p',{style:'margin:0;color:var(--text2);font-size:13.5px'}, it.body))
         ))),
         blocktitle('The daily loop'),
-        h('div',{class:'callout'}, h('div',{class:'tag'},'Self-improving routine'), h('p',{},cc.loop))
+        h('div',{class:'callout'}, h('div',{class:'tag'},'Self-improving routine'), h('p',{},cc.loop)),
+        cc.playbook? blocktitle('Daily playbook · what the agent runs every day') : null,
+        cc.playbook? h('div',{class:'card flat'}, (cc.playbook||[]).map(p=>h('div',{class:'kv'}, h('div',{class:'k'}, p.step), h('div',{class:'v'}, h('b',{style:'color:var(--text)'}, p.title+'. '), p.detail)))) : null
       );
     };
 
@@ -924,7 +926,8 @@
         blocktitle('Live experiments'),
         ex.length? h('div',{class:'stack'}, ex.map(e=>card({children:[
           h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px'},
-            h('h3',{style:'margin:0'},e.name), chip(e.status, e.status==='Running'?'success':e.status==='Complete'?'accent':'muted')),
+            h('div',{style:'display:flex;align-items:center;gap:10px;flex-wrap:wrap'}, e.id?h('span',{class:'mono',style:'color:var(--accent);font-weight:600;letter-spacing:.04em'},e.id):null, h('h3',{style:'margin:0'},e.name)),
+            chip(e.status, /^running/i.test(e.status)?'success':/shipped|complete/i.test(e.status)?'accent':'muted')),
           h('div',{class:'chips',style:'margin-bottom:12px'}, e.flag?chip('flag: '+e.flag,'muted'):null, e.metric?chip('metric: '+e.metric,'accent'):null, e.started?chip('since '+e.started,'muted'):null),
           h('p',{},e.hypothesis),
           e.signal? h('p',{class:'small',style:'margin-top:10px;color:var(--accent-dim)'},'▸ '+e.signal):null,

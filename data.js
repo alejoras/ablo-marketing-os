@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T06:06:09.313331+00:00"
+    "updatedISO": "2026-06-03T06:12:25.195557+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -2412,6 +2412,158 @@ window.ABLO_OS = {
       }
     ]
   },
+  "gtm": {
+    "intro": "The bridge between goals and tactics, built on Emily Kramer's MKT1 framework. Goals say where we are going. This says how we win. The execution tabs (campaigns, experiments, content, lifecycle) are the how-we-do-it.",
+    "motion": "Self-serve, product-led, wedge-first. Founder-led LinkedIn plus paid social seed a fast, visual free trial for a tightly-defined buyer (founders of small US fashion brands), led by the one job free tools cannot do: the believable on-model shot of bodies you cannot cheaply photograph. The enterprise / embedded motion runs separately, owned by Michael, and is out of scope here.",
+    "stack": [
+      {
+        "layer": "1. Goals",
+        "what": "First paying customers, CAC < $300, signup→paid ≥ 8%. North-star: liquid revenue via self-serve.",
+        "where": "Goals & OKRs"
+      },
+      {
+        "layer": "2. GTM strategy",
+        "what": "The wedge (who + the one job), the marketing advantages we exploit, the perceptions we drive, and the 1 to 3 Big Bets that combine them. This tab.",
+        "where": "GTM Strategy"
+      },
+      {
+        "layer": "3. Tactics",
+        "what": "The campaigns, experiments, content fuel, and lifecycle flows that execute the Big Bets. Ranked daily in the Command Center.",
+        "where": "Campaigns · Experiments · Content · Lifecycle · Command Center"
+      }
+    ],
+    "wedge": "Wedge marketing (MKT1): win a specific niche before expanding. Lead with Kids & babywear (the cheapest, healthiest funnel, the hardest body to shoot), co-lead Swim & size-inclusive (best attention, most acute pain). Tailor the creative, demo, and landing to the wedge. Do not market the pitch deck; market one niche first. Full tiers in ICP & Segments.",
+    "advantages": [
+      {
+        "n": "1",
+        "name": "\"Bodies you can't shoot\" wedge",
+        "category": "Product",
+        "strength": "Medium",
+        "potential": "High",
+        "moat": "Free/horizontal tools cannot do it"
+      },
+      {
+        "n": "2",
+        "name": "Fast, visual free-trial AHA",
+        "category": "Product",
+        "strength": "Medium (funnel leaks)",
+        "potential": "High",
+        "moat": "Partial, others have trials"
+      },
+      {
+        "n": "3",
+        "name": "Product output as endless proof",
+        "category": "Fuel",
+        "strength": "Low (untapped)",
+        "potential": "High",
+        "moat": "Unique to our output quality"
+      },
+      {
+        "n": "4",
+        "name": "Founder-led distribution",
+        "category": "Engine",
+        "strength": "Low-Med",
+        "potential": "Medium",
+        "moat": "No, but fits this buyer"
+      }
+    ],
+    "bigBets": [
+      {
+        "name": "Win the wedge (Kids + Swim)",
+        "priority": "High",
+        "icp": "Founders of small US Kids & babywear (lead) + Swim / size-inclusive (co-lead) brands",
+        "perception": "P1, campaign-ready on-model photos in minutes, including the bodies I can't shoot",
+        "advantage": "The wedge + product-output-as-fuel",
+        "channel": "Founder LinkedIn + Meta/IG (paid + organic)",
+        "fuel": "Before/after, shot-in-minutes, per-segment demos (F3, F4, F7)",
+        "success": "Stable-CAC signups and activations from Kids/Swim that feed the price-ask test"
+      },
+      {
+        "name": "Prove willingness to pay",
+        "priority": "High",
+        "icp": "Activated Kids/Swim founders",
+        "perception": "P3, I can ship a drop without a photographer, studio, or casting",
+        "advantage": "Fast visual free-trial AHA",
+        "channel": "In-product + lifecycle email + 1:1 founder outreach",
+        "fuel": "AHA nudge flow + the price-ask interview guide",
+        "success": "First 5 paying customers, ARPU ≥ $50, signup→paid ≥ 8% (the brag)"
+      },
+      {
+        "name": "Build the credibility flywheel",
+        "priority": "Medium",
+        "icp": "The broad small-fashion-founder market (+ enterprise halo)",
+        "perception": "P2 the photoshoot is becoming optional, + P5 built by fashion people",
+        "advantage": "Fuel advantage (unique POV + data) + founder distribution",
+        "channel": "SEO / owned + Founder LinkedIn + outreach",
+        "fuel": "The State of On-Model Imagery report (F1), comparison (F6), build-in-public (F10), calculator (F9)",
+        "success": "A linkable, cited asset that drives inbound and lowers CAC over time"
+      }
+    ],
+    "channelNote": "Channel strategy uses MKT1's five growth engines (Inbound, Outbound, Product Virality, Events, Ecosystem). For Ablo today: Founder LinkedIn is the primary engine, Meta/IG is the demand engine, SEO/owned is the compounding bet, lifecycle is activation. Full scorecard and status in the Channels tab.",
+    "frameworkNote": "Method: MKT1's seven strategy exercises (company overview, ICP prioritization, marketing advantages, perceptions, positioning, revenue levers, big bets). The first six live across Overview, ICP, Positioning, Messaging, and Goals. This tab is exercise 7, the Big Bets, where strategy becomes coordinated action."
+  },
+  "agents": {
+    "intro": "Read this first. This page orients an AI agent to the Marketing OS before it acts. The OS is built to be pinged and used by agents continuously.",
+    "what": "The Marketing OS is the single context layer and task list for Ablo Studio's marketing. One source of truth for strategy (positioning, ICP, messaging, voice, GTM) and live execution (funnel, experiments, campaigns, lifecycle). If you are doing any Ablo Studio marketing work, ground yourself here first.",
+    "goal": "The end state is an autonomous, self-improving marketing system that manages every aspect of marketing. Near-term north-star: first paying customers at CAC < $300 and signup→paid ≥ 8%. Everything you do ranks against that goal.",
+    "howToUse": [
+      {
+        "k": "Where to start",
+        "v": "Read Overview (what Ablo is), Goals & OKRs (where we are going), and GTM Strategy (how we win). Those three ground almost any task."
+      },
+      {
+        "k": "Your task list",
+        "v": "The Command Center is the ranked action queue. The daily playbook (the marketing-os-refresh skill) is the operating loop: check experiments, funnel, campaigns, lifecycle, content, then re-rank."
+      },
+      {
+        "k": "Live vs curated",
+        "v": "Funnel, Experiments, Campaigns, and Lifecycle are LIVE (PostHog, Meta, Klaviyo), refreshed on every build. Positioning, ICP, Messaging, Voice, and GTM are curated and human-edited. Never auto-rewrite curated strategy."
+      },
+      {
+        "k": "Non-negotiables",
+        "v": "Lead every message from the wedge (the bodies brands cannot shoot). Obey the Brand Voice rules (no em dashes, no hype, editorial, lead with the result). Use the copy-paste voice card on the Brand Voice tab."
+      },
+      {
+        "k": "Content",
+        "v": "Every content piece must ladder to a messaging pillar, a segment, and the goal. Pull ideas from the Content fuel backlog and schedule on the Content Calendar."
+      },
+      {
+        "k": "Experiments",
+        "v": "Run no more than 2 to 3 at once. Refer to each by its ID. Do not conclude under-powered tests."
+      },
+      {
+        "k": "Escalate vs act",
+        "v": "Escalate only money/budget, pricing/positioning, access/credentials, and user-visible product changes. Everything else (analysis, re-ranking, drafting, instrumentation, wiring a flow) you own."
+      },
+      {
+        "k": "Freshness",
+        "v": "The OS rebuilds daily. Each tab shows an updated stamp. If a live source failed, the curated fallback is shown and labelled."
+      }
+    ],
+    "canonical": [
+      {
+        "k": "Product",
+        "v": "Ablo Studio, self-serve AI on-model imagery for fashion brands. Create a model, paste a product URL, get campaign-ready 2K imagery in minutes."
+      },
+      {
+        "k": "URL",
+        "v": "https://ablo.tech"
+      },
+      {
+        "k": "Buyer",
+        "v": "Founder / owner of a small (2 to 50, mostly 2 to 10) US fashion brand. Wedge: Kids & babywear (lead), Swim / size-inclusive (co-lead)."
+      },
+      {
+        "k": "The one wedge",
+        "v": "The believable on-model shot of a body the brand cannot easily or cheaply photograph. Not background removal, free tools own that."
+      },
+      {
+        "k": "Stage",
+        "v": "Pre-revenue. End-of-June goal: first paying customer."
+      }
+    ],
+    "consume": "For structured data, read data.js (window.ABLO_OS) at the site root: every section is a key, live data sits under .live. The Brand Voice tab carries a copy-paste voice card built for content agents."
+  },
   "live": {
     "kpis": [
       {
@@ -2527,7 +2679,7 @@ window.ABLO_OS = {
           "sub": "$pageview",
           "group": "Acquire",
           "counts": {
-            "d7": 330,
+            "d7": 329,
             "d30": 755,
             "d90": 755,
             "all": 755
@@ -2921,7 +3073,7 @@ window.ABLO_OS = {
       "listUrl": "https://app.clickup.com/9003194404/v/li/901415977874",
       "counts": {
         "in progress": 5,
-        "to do": 22,
+        "to do": 23,
         "done": 14,
         "review": 5
       },
@@ -3035,7 +3187,7 @@ window.ABLO_OS = {
           "assignee": "Alejo Escrivá"
         }
       ],
-      "total": 46
+      "total": 47
     },
     "instagram": {
       "username": "ablo.ai",

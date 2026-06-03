@@ -1,0 +1,262 @@
+{
+  "meta": {
+    "product": "Ablo Studio",
+    "tagline": "no more boring shoots",
+    "url": "https://ablo.tech",
+    "parent": "Ablo (formerly Spacerunners)",
+    "stage": "Pre-revenue · self-serve launch",
+    "ownerMarketing": "Alejo Escriva, Head of Marketing",
+    "ownerProduct": "Deniz Ozgur, co-CEO (Studio product owner)",
+    "ownerBD": "Michael Scarpellini, Head of Partnerships (enterprise / out of self-serve scope)",
+    "northStar": "Liquid revenue via self-serve. First paying customers plus a repeatable acquisition channel with stable CAC.",
+    "endOfJuneGoal": "First paying customer.",
+    "updated": "seed",
+    "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week."
+  },
+  "overview": {
+    "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
+    "what": "Ablo Studio is the on-model imagery layer for a fashion brand's drop. Three steps: create your model, import your catalog, dress and shoot. The defensible job is the believable, editorial-quality on-model shot of a body the brand cannot easily or cheaply photograph: babies, plus and diverse bodies, swim fit.",
+    "howItWorks": [
+      { "step": "1", "title": "Create your model", "body": "Choose ethnicity, hair, body type, style, or upload a reference photo to keep real facial features. One editorial model, 12 poses. 5 credits (10 with a reference photo)." },
+      { "step": "2", "title": "Import your catalog", "body": "Paste a product URL from Shopify, Cafe24, or most platforms. Product images are extracted automatically. Tops, dresses, pants, outerwear, shoes, accessories. Import is free." },
+      { "step": "3", "title": "Dress and shoot", "body": "Generate the try-on at 2K, multiple poses, custom backgrounds, plus AI edits to lighting, shadows, and scene by text prompt. Try-on 5 credits, edit 2 credits." }
+    ],
+    "posture": [
+      { "k": "Strategic frame", "v": "Ablo.ai is the umbrella AI implementation company. Ablo Studio is one of its own products and the current focus. This OS covers Studio as a self-serve product. The enterprise / custom-build motion runs separately, owned by Michael." },
+      { "k": "Honest stage", "v": "Tech-led, finding its market. The team had the AI capability and built the most obvious productized shape. Positioning, ICP, and pricing are still in motion and will sharpen as the market signal does." },
+      { "k": "The one wedge", "v": "Free tools (PhotoRoom, Pimeli) already own background removal and flat lays for about $5/mo. Studio must not wedge there. Every message leads from the on-model shot of bodies you cannot cheaply shoot." }
+    ],
+    "currentFocus": [
+      "Fix the signup-modal drop. Only 46 of 127 opens finish, and the email magic-link path leaks almost everyone (52 requested, 3 logged in). Promote Google sign-in, demote email. The single highest-leverage fix on the live funnel.",
+      "Close the try-on activation gap. 59 entered the studio, 28 generated a model (53% never do). Find the broken or slow control before the first generate. Free-tier credit rebalance shipped to give new users two full generations.",
+      "Run the price-ask test. Manually onboard 5 kids founders and 5 swim / size-inclusive founders, watch them hit try-on, then ask what they would pay. Free signups tell us almost nothing about revenue.",
+      "Find one repeatable acquisition channel with stable CAC. The autopilot plus a $200/week validation budget is the test rig."
+    ]
+  },
+  "goals": {
+    "northStar": "Liquid revenue via self-serve: first paying customers plus a repeatable acquisition channel.",
+    "theBrag": "First 5 paying self-serve customers at a validated CAC under $300 and ARPU at or above $50/mo, within roughly 6 to 8 weeks. This converts the ICP from hypothesis to proven.",
+    "kpoGoals": [
+      { "type": "KPI", "text": "Signup to paid at or above 8%, or learn the real number and reset the model.", "tone": "accent" },
+      { "type": "Project", "text": "Fix the signup-modal drop and the try-on activation gap. Product-owned, but it gates every paid dollar. This is the #1 blocker.", "tone": "warn" },
+      { "type": "Project", "text": "Run the price-ask test (5 kids founders + 5 swim / size-inclusive) to get real ARPU and willingness-to-pay, then promote a segment to Core.", "tone": "default" },
+      { "type": "Ops", "text": "Identify one repeatable acquisition channel with stable CAC. The autopilot and the validation budget are the test rig.", "tone": "default" }
+    ],
+    "revenueLevers": [
+      { "rank": "1", "name": "Grow top-of-funnel with the core audience", "role": "Lead", "body": "More qualified signups from the Kids and Swim / size-inclusive wedge via a repeatable paid channel. We have an ICP and creative that resonate; we lack volume and a stable-CAC engine." },
+      { "rank": "2", "name": "Increase conversion: signup to activation to paid", "role": "Co-lead", "body": "Fix the signup-modal drop and the try-on activation gap. This moves CAC more than any budget change, and it costs nothing in spend. Do 1 and 2 together: 1 without 2 burns money; 2 without 1 has nothing to convert." },
+      { "rank": "3", "name": "Increase customer value (ARPU)", "role": "Required", "body": "Credit top-ups and a power-user tier so heavy-drop brands expand past the $50 base. Required for the unit economics to clear." },
+      { "rank": "4", "name": "Efficiency", "role": "Lowest priority", "body": "Concentrate budget on converting segments. Already done: about 90% on Kids and women's." }
+    ],
+    "unitEconomics": [
+      { "k": "Target ARPU", "v": "~$80/mo", "sub": "$50 base + ~$30 expansion (top-ups / power tier). Annual ~$960. Flat $50 with no expansion makes the economics tight, so push top-ups." },
+      { "k": "LTV", "v": "~$670", "sub": "$80/mo x ~70% gross margin x ~12-mo retention." },
+      { "k": "CAC", "v": "$200 target / $300 ceiling", "sub": "LTV:CAC ~2.2 to 3.4x, payback ~4 to 5 months." },
+      { "k": "Required signup to paid", "v": "≥ 8%", "sub": "at ~$20 CPL to hold CAC at or below $250." }
+    ],
+    "funnel": [
+      { "stage": "Cost per signup (CPL)", "def": "paid spend / signups", "current": "~$21 (lifetime)", "target": "≤ $20" },
+      { "stage": "Signup to activation", "def": "reached try-on / model generated", "current": "~53%", "target": "≥ 50%" },
+      { "stage": "Activation to paid", "def": "bought a plan", "current": "unknown (0 paid)", "target": "the make-or-break number" },
+      { "stage": "Signup to paid (overall)", "def": "end to end", "current": "unknown", "target": "≥ 8%" }
+    ],
+    "arc": "Wave 1 (done) → Wave 2 LinkedIn replication (done) → customer interviews shape Wave 3 messaging → end-of-June goal: first paying customer. At $200/week this is a validation budget, not a growth budget. The lever that decides viability here is conversion and ARPU, not spend."
+  },
+  "icp": {
+    "buyer": "Founder / Owner / CEO of a small (2 to 50, mostly 2 to 10 employee) US fashion brand in Retail Apparel & Fashion or Apparel Manufacturing.",
+    "wedgeNote": "One buyer, several category wedges. The segments differ by product category, which is what changes the creative, the demo, and the pain. Nothing is Core yet: Studio is pre-revenue, so maturity reflects engagement and activation evidence, not revenue. The price-ask test is what promotes a segment to Core.",
+    "geo": "US-first and decisively. LinkedIn US CTR 12.2% vs 3.9 to 5.5% in the EU. EU is a secondary test, not a current priority.",
+    "tiers": [
+      { "name": "Kids & babywear", "company": "Small US kids & babywear DTC brand", "maturity": "Scaling · lead", "tone": "accent", "share": "~40% of focus", "why": "You cannot cheaply or repeatedly shoot babies and toddlers: expensive, unreliable, age out of the product in weeks. The hard part is the model, exactly where Studio is defensible. Best Meta funnel, cheapest signups, an activated real brand (Agenzia Kids)." },
+      { "name": "Swim & size-inclusive", "company": "Small US swimwear & size-inclusive women's brand", "maturity": "Scaling / Testing · co-lead", "tone": "accent", "share": "~30% of focus", "why": "The most expensive, most logistically painful shoot in fashion, and again the hard part is the model: many bodies, real fit on diverse and plus bodies, heavy SKU counts. Best Meta CTR (swim 2.97%), an activated real brand (Water Vixen Swim)." },
+      { "name": "Contemporary women's", "company": "Small US independent / contemporary women's brand", "maturity": "Testing", "tone": "default", "share": "~15% of focus", "why": "The broad wedge inside the firmographic ICP. General fashion signal." },
+      { "name": "Menswear", "company": "Small US men's fashion brand", "maturity": "Future · watch", "tone": "muted", "share": "~5% of focus", "why": "Weakest Meta pull: lowest CTR (1.91%), fewest signups. Demote unless a sharper sub-need (fast collab / co-branded mock-ups) tests differently. (The ad set labeled \"streetwear & menswear\" was the men's campaign, not streetwear.)" },
+      { "name": "Agencies / photo studios", "company": "Design & advertising services serving fashion", "maturity": "Future · test later", "tone": "muted", "share": "0%", "why": "B2B2B: one studio serves many brands. Showed up on LinkedIn at lower intent. A different motion." },
+      { "name": "Enterprise / IP licensors", "company": "$50M+ fashion brands & IP holders", "maturity": "BD-owned · out of self-serve scope", "tone": "muted", "share": "0%", "why": "The enterprise prize. A named-account BD motion (Terranova, Warner Bros, Hasbro), owned by Michael, anchored on IP-clean output. Not an ad-targetable segment." }
+    ],
+    "rubric": [
+      { "n": "1", "name": "Unsolvable problem", "body": "What can they not do cheaply otherwise? If a free tool or a $500 photographer already solves it, there is no wedge." },
+      { "n": "2", "name": "Recurrence", "body": "One-time need is one-time revenue. Every-drop need is a subscription." },
+      { "n": "3", "name": "Willingness + ability to pay", "body": "Above the free-tool floor of about $5/mo." },
+      { "n": "4", "name": "Acquirability (CAC)", "body": "Reachable repeatably and cheaply. A hard requirement, not a nice-to-have, because the runway is short." },
+      { "n": "5", "name": "Product fit today", "body": "Not after a roadmap." }
+    ],
+    "lesson": "The PhotoRoom signal is the most important thing the data taught us. A streetwear founder we interviewed (Marco) churned to PhotoRoom (~$5/mo), which already did everything he needed: background removal, flat lays, ghost mannequin. That is the commoditized part of the workflow. Studio's only defensible job is generating a believable on-model image of bodies a brand cannot easily or cheaply shoot. That single reframing reorders every segment: it rewards Kids and Swim / size-inclusive (the hard problem is the model) and punishes Menswear (its loud need is the commoditized part).",
+    "decisiveTest": "Both moves end in a price ask, because free signups tell us almost nothing. Manually onboard 5 kids founders (start with Agenzia Kids) and 4 to 5 swim / plus brands (start with Water Vixen Swim). Watch them hit try-on, ask the four discovery questions and \"would you pay, how much.\" Decision rule: whichever segment converts a card first, at a price that clears CAC and sits clearly above the ~$5 free-tool floor, is ICP #1.",
+    "realSignups": "Who actually showed up: micro independent brands (ALYYO, Naked Slang, Zero Core, NeevaD London), a swimwear brand (Water Vixen Swim, activated twice), a kids label (Agenzia Kids), a couture bridal brand (BENI), a craft brand (ElilouCrea), and a freelance fashion photographer. Geography US-heavy, then Italy, Spain, UK, France."
+  },
+  "positioning": {
+    "type": "New Way",
+    "statement": "Studio replaces the fashion photoshoot and the cobbled-together free-AI stack, not one incumbent tool. The buyer's old way is an expensive shoot ($5K to $50K, weeks) or gluing together free and horizontal AI (PhotoRoom, Pimeli, Midjourney). Secondary frame: a Vertical Solution vs horizontal image AI.",
+    "differentiator": "Within \"AI imagery\", free tools already own background removal and flat lays. The defensible job is the believable, editorial-quality on-model shot of a body the brand cannot easily or cheaply photograph: babies, plus and diverse bodies, swim fit. Every message leads from that.",
+    "quad": [
+      { "q": "Who is it for?", "today": "Founders / owners of small US fashion brands (kids, swim, size-inclusive) refreshing imagery every drop.", "year": "+ in-house marketers at growing DTC fashion brands; + EU." },
+      { "q": "What is it?", "today": "Self-serve AI on-model imagery built for fashion: create models, import your catalog, dress and shoot.", "year": "The on-model imagery layer for any fashion brand's drop workflow." },
+      { "q": "Comparing to?", "today": "The photoshoot ($5K to $50K, weeks) + the cobbled free / horizontal-AI stack (PhotoRoom, Pimeli, Midjourney).", "year": "+ vertical AI try-on incumbents (Raspberry, Botika) as the category matures." },
+      { "q": "Why better?", "today": "Editorial quality (the stitching, the skin, the light), fashion-native, including the bodies you cannot easily shoot, in minutes. Your drop, your story, your way.", "year": "+ brand-guidelines-as-context (your model, your aesthetic, every drop) + IP-clean output." }
+    ],
+    "proofToday": [
+      "The output itself: the imagery is the strongest proof.",
+      "The launch film: \"Fashion shoots, reinvented.\"",
+      "50 free credits, no card."
+    ],
+    "proofToEarn": [
+      "A public, named Studio customer with permission to be quoted.",
+      "A named reference SMB story (a kids or swim brand using Studio in production).",
+      "Aggregate stats: shoots replaced, hours and cost saved."
+    ],
+    "parentCredibility": "Ablo has worked with Crocs and Balmain-class brands at the parent level. This opens enterprise doors and lends trust, but those brands have not used Studio. It is not Studio proof and cannot be cited as self-serve proof."
+  },
+  "messaging": {
+    "perceptions": [
+      { "n": "1", "text": "Ablo Studio gives me campaign-ready, on-model photos of my products in minutes, including shots I could never get myself (my kids' line, every body type, swim fit).", "type": "Product insight", "status": "Emerging", "lead": true },
+      { "n": "2", "text": "AI imagery is now good enough that a small fashion brand can look like a big one. The photoshoot is becoming optional.", "type": "Market insight", "status": "Emerging", "lead": true },
+      { "n": "3", "text": "I can ship a drop's imagery on schedule without a photographer, a studio, or model casting.", "type": "Audience insight", "status": "Brand-new", "lead": false },
+      { "n": "4", "text": "It keeps my garments, fit, and brand intact. It is not AI slop.", "type": "Differentiator", "status": "Brand-new", "lead": false },
+      { "n": "5", "text": "This is built by people who actually work with fashion brands, not a generic image-AI toy.", "type": "Company insight", "status": "Brand-new", "lead": false }
+    ],
+    "perceptionsNote": "Beliefs we want the audience to repeat back. Most content should ladder to #1 and #2.",
+    "taglines": [
+      { "line": "no more boring shoots", "where": "Homepage hero" },
+      { "line": "Fashion shoots, reinvented.", "where": "Launch film" },
+      { "line": "Fashion photo shoots are over.", "where": "Launch film" },
+      { "line": "No photographers. No studios. No hassle.", "where": "Homepage close" }
+    ],
+    "verbatim": [
+      "Create your models. Import your catalog. Dress and shoot.",
+      "Look at the stitching. The skin. The light. Editorial quality.",
+      "Your drop. Your story. Your way."
+    ],
+    "homepageArchitecture": [
+      { "k": "Hero", "v": "\"no more boring shoots\" + \"Generate AI models, dress them in your products, and create campaign-ready imagery in minutes.\"" },
+      { "k": "Three steps", "v": "Create Model · Import Any Product · Campaign-Ready Results" },
+      { "k": "Feature tags", "v": "Ethnicity · Hair Style · Body Type · 12 Poses · 2K Resolution · AI Edit · Download" },
+      { "k": "Close", "v": "\"No photographers. No studios. No hassle.\"" }
+    ],
+    "gaps": [
+      "Why Studio exists: no founding-thesis copy on the site.",
+      "Who it is for: \"fashion brands\" is too generic; the wedge needs surface area.",
+      "Proof: no customer logos, case studies, or aggregate stats yet.",
+      "Comparison clarity: no side-by-side against the photoshoot budget or generic AI."
+    ]
+  },
+  "voice": {
+    "direction": "Editorial, calm, premium, proof-forward. Keep the editorial design language, add explanatory copy and proof on pricing and conversion surfaces. Lead with the result, not the process.",
+    "anchorWords": ["Editorial", "Campaign-ready", "Fashion-tech", "Calm confidence", "Photo-led", "Sparse", "Considered"],
+    "antiWords": ["Productivity-tool vibe", "Generic SaaS", "Hype", "Exclamation points", "AI buzzword stack (revolutionary, game-changing, unleash)", "Startup-bro casualness"],
+    "referenceYes": [
+      { "brand": "SSENSE", "for": "Editorial fashion-tech" },
+      { "brand": "Off-White", "for": "Editorial fashion-tech" },
+      { "brand": "Linear", "for": "Clarity inside the product" },
+      { "brand": "Arc'teryx", "for": "Confident, sparse, technical-but-cool" }
+    ],
+    "referenceNo": ["Notion", "Webflow", "Zapier", "Generic B2B SaaS landing pages"],
+    "rules": [
+      { "rule": "Never use em dashes.", "detail": "Use commas, periods, parentheses, or restructure." },
+      { "rule": "Do not expand acronyms.", "detail": "ICP, DTC, OKRs, CAC stay as acronyms." },
+      { "rule": "Lead with the result, not the process.", "detail": "The campaign-ready image first, the steps second." },
+      { "rule": "When in doubt, cut a sentence.", "detail": "Sparse beats complete." },
+      { "rule": "No AI hype words.", "detail": "No revolutionary, game-changing, unleash, or exclamation points." }
+    ],
+    "twoSurfaces": [
+      { "surface": "Top of funnel & brand", "guidance": "Editorial, sparse, photo-led, confident. Let the image carry it." },
+      { "surface": "In-product, pricing, comparison, FAQ", "guidance": "Clearer, more explanatory, proof-forward. Still designed and quiet, but with more words." }
+    ],
+    "doDont": [
+      { "do": "Fashion shoots, reinvented.", "dont": "Revolutionizing fashion photography with AI!" },
+      { "do": "Campaign-ready imagery in minutes.", "dont": "Unleash game-changing visuals at the speed of thought." },
+      { "do": "Look at the stitching. The skin. The light.", "dont": "Our cutting-edge AI delivers stunning, photorealistic results." },
+      { "do": "Every body type without booking 8 models.", "dont": "Diversity and inclusion, powered by next-gen AI." }
+    ],
+    "agentPrompt": "You are writing for Ablo Studio, self-serve AI on-model imagery for fashion brands. Voice: editorial, calm, premium, proof-forward. Think SSENSE, Off-White, Linear, Arc'teryx. Lead with the result, not the process. Sparse beats complete; when in doubt, cut a sentence. Hard rules: never use em dashes (use commas, periods, parentheses, or restructure); keep acronyms as acronyms (ICP, DTC, CAC); no exclamation points; no AI hype words (revolutionary, game-changing, unleash); no generic-SaaS or startup-bro tone. Lead every message from the one wedge: campaign-ready, on-model photos of bodies a brand cannot easily or cheaply shoot (babies, plus and diverse bodies, swim fit) in minutes, not background removal (free tools own that). Audience: founder / owner of a small US fashion brand (kids, swim, size-inclusive). Proof we can use today: the output itself, the launch film, 50 free credits no card. Do not claim Crocs or Balmain as Studio customers (parent-level only). Do not write to the old $1,250 price."
+  },
+  "experimentsCurated": {
+    "intro": "Live experiments and the autopilot's funnel intelligence refresh automatically each week. Below is the standing test backlog and the funnel fixes in flight.",
+    "liveFallback": [
+      {
+        "name": "Studio onboarding coachmarks",
+        "status": "Running",
+        "flag": "studio-onboarding-coachmarks",
+        "hypothesis": "Tests whether showing the first-run coachmarks (the guided tips on the create-model screen: describe, refine selectors, generate, ready-made model) increases the share of users who generate a model. control = no coachmarks; test = coachmarks shown. 50/50 split, 100% rollout. Exposure fires when a user reaches the create-model step.",
+        "metric": "model_generated",
+        "started": "May 30, 2026",
+        "url": "https://us.posthog.com/project/419152/experiments/374260",
+        "signal": "Collecting data. Exposures are low (single digits) while paid delivery is paused, so results are not yet conclusive."
+      }
+    ],
+    "backlog": [
+      { "title": "Signup modal: Google sign-in primary", "hyp": "Promoting \"Continue with Google\" to a full-width primary button and demoting email magic-link to a small secondary link will lift modal completion above 36%. The magic-link path forces an inbox round-trip most people never return from.", "owner": "Product (Deniz / Jason)", "status": "Queued / shipping" },
+      { "title": "Try-on activation: unblock the first generate", "hyp": "There is a control on /studio that looks clickable but does not respond or is too slow before the first \"Generate Model\". Fixing it lifts the 53% who enter the studio but never generate.", "owner": "Product", "status": "Investigating (rage-click cluster found)" },
+      { "title": "Free-tier credit rebalance", "hyp": "Photo upload dropped 36 to 25 credits so a new user can complete 2 full generations with a custom model before credits run out. Closes the exhaust-credits-before-activation loop.", "owner": "Marketing / Product", "status": "Shipped" },
+      { "title": "Brand guidelines / logo as context", "hyp": "Letting a brand upload its guidelines or logo as context is the highest-leverage product investment across all segments, because brand-integrity is the quality test in every segment.", "owner": "Product (backlog)", "status": "Backlog" }
+    ]
+  },
+  "campaignsCurated": {
+    "name": "Signup Launch (2026-05)",
+    "structure": [
+      "Wave 1: LinkedIn founder posts (Deniz 5/19, Won 5/20) + Thought Leader Ads (~$300), plus Meta paid across 4 segments.",
+      "Wave 2: Won-authored LinkedIn post (5/26), a replication test of Wave 1, not amplification.",
+      "Meta segments: kids (/toddler), curve / plus-size (/plus-size), womens-swim (/), menswear (/)."
+    ],
+    "bestDay": {
+      "label": "Best day (May 29): $227 spend · 18 conversions · $12.63 CPL",
+      "rows": [
+        { "segment": "Kids & babywear", "ctr": "2.60%", "signups": "~13", "funnel": "Healthiest, cheapest signups", "tone": "accent" },
+        { "segment": "Women's contemporary + swim", "ctr": "2.97%", "signups": "8", "funnel": "Best CTR, leaks at landing", "tone": "accent" },
+        { "segment": "Size-inclusive", "ctr": "1.78%", "signups": "~7", "funnel": "Healthy", "tone": "default" },
+        { "segment": "Menswear", "ctr": "1.91%", "signups": "4", "funnel": "Weakest pull", "tone": "muted" }
+      ]
+    },
+    "learnings": [
+      "Kids is the cheapest, healthiest acquisition. Swim has the best attention. Menswear is the weakest paid pull.",
+      "Funnel leaks: the signup-modal drop, plus swim and menswear leaked at the landing page.",
+      "Tracking caveat: the /toddler and /plus-size pixels under-fired, so trust CTR and raw signups over cross-segment signup rate.",
+      "The Meta ads are run by the ablo-ads-autopilot skill on a 6-hour cron that kills losers and doubles down on winners. Product-agnostic and pluggable into any future launch."
+    ],
+    "lifecycle": [
+      "Channel weighting is Meta-primary (about 80/20 vs LinkedIn) on current performance.",
+      "Lead routing: Alejo owns all inbound consumer and high-intent leads; Michael owns outbound B2B to a named US + Italy company list.",
+      "Klaviyo is the email tool (basic plan). Abandoned-cart email for the try-on stage is queued."
+    ]
+  },
+  "content": {
+    "status": "Deliberately a stub. The 90-day plan was BD-led and narrow: no social audience building, no founder content engine, no blog. A full content strategy may be premature by design. This holds the plan for when content goes in scope.",
+    "engine": "The product's own output is the strongest content: before/after, \"shot in minutes,\" per-segment model demos. Every generation is shareable proof, which makes content infinite, cheap, and credible.",
+    "recipe": "The repeatable engine: with the MVC, the per-segment profiles, and the voice rules in this OS, an AI can draft on-brand ads, posts, and emails from a one-line brief. Awareness hook (the pain) → consideration (the bodies-you-cannot-shoot wedge + proof) → conversion (free 50 credits, the activation moment).",
+    "channels": [
+      "Meta / IG works for Kids and Swim.",
+      "LinkedIn founder posts were the Wave 1 / 2 vehicle.",
+      "Menswear underperformed on paid.",
+      "The decision still open: which one channel + audience to pour budget into."
+    ],
+    "toFill": [
+      "Goal: what is content for (demand gen for the self-serve wedge, proof for enterprise, SEO, founder-led distribution).",
+      "Audience x stage: the message at each funnel stage, per lead segment.",
+      "Formats + cadence: what we can actually produce.",
+      "Document the prompt / recipe here once the on-brand drafting loop is proven."
+    ]
+  },
+  "competition": {
+    "intro": "Studio is positioned against budget categories, not feature-comparison competitors.",
+    "set": [
+      { "name": "The photoshoot & budget", "what": "Editorial agencies, photographers, studios, model agencies. The full $5K to $50K shoot.", "pitch": "No photographers. No studios. No hassle. Replace the shoot budget, not augment it. Speed and refresh frequency are the wedge.", "win": "Hero campaigns, physical garment quality, or licensing concerns that demand real models.", "tone": "accent" },
+      { "name": "Horizontal / generic image AI", "what": "Midjourney, PhotoRoom, Pimeli, ChatGPT image, Flux. General tools fashion brands hack into a try-on workflow.", "pitch": "Studio is a workflow, not a model. Fashion-specific: garment fidelity, fabric texture, body proportions, 2K on-model output, multiple poses, URL product import. Free tools own background removal; do not wedge there.", "win": "Creative latitude beyond fashion, or a team comfortable wrangling prompts. PhotoRoom wins the commoditized flat-lay / background job at about $5/mo.", "tone": "default" },
+      { "name": "Vertical AI try-on", "what": "Raspberry AI, Botika, Lalaland, Fashn, Vmodel. Direct feature competitors in AI virtual try-on.", "pitch": "Aware of, not currently messaged against. Raspberry's $50/mo tier is the internal pricing benchmark (the reason Studio's entry came down), not a messaging target.", "win": "As the category matures, these become the named comparison. Today they are an internal benchmark.", "tone": "muted" }
+    ],
+    "differentiation": [
+      "Premium editorial output quality at 2K.",
+      "A fashion-specific workflow (model gen + product import + try-on + edit), not a one-shot tool.",
+      "Cafe24 and Shopify import baked in.",
+      "Parent-brand credibility lends enterprise trust, even without public Studio reference customers yet."
+    ]
+  },
+  "pricing": {
+    "note": "Verify live pricing on the site before putting a number in copy. A $50/mo SMB tier was decided 2026-04-27; the old $1,250/mo Pro entry was being removed (\"Option B\" shipped on site 2026-05-04). Do not write to the old $1,250 price point.",
+    "rows": [
+      { "k": "Free start", "v": "50 credits, no card required" },
+      { "k": "SMB tier", "v": "~$50/mo (Raspberry AI parity). Verify live." },
+      { "k": "Enterprise", "v": "Custom-priced, embedded-workflow deals (separate BD motion)" },
+      { "k": "Credit costs", "v": "Model gen 5 (10 with reference photo) · Try-on 5 · Edit 2 · Import free" }
+    ]
+  }
+}

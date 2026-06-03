@@ -12,5 +12,5 @@
 {"date": "2026-05-30", "landed": 13, "engaged": 2, "modal": 1, "signups": 1, "models": 1, "imports": 0, "tryons": 0, "downloads": 0, "checkouts": 0}
 {"date": "2026-05-31", "landed": 9, "engaged": 0, "modal": 0, "signups": 0, "models": 0, "imports": 0, "tryons": 0, "downloads": 0, "checkouts": 0}
 {"date": "2026-06-01", "landed": 10, "engaged": 2, "modal": 0, "signups": 0, "models": 0, "imports": 0, "tryons": 0, "downloads": 0, "checkouts": 0}
-{"date": "2026-06-02", "landed": 13, "engaged": 5, "modal": 4, "signups": 3, "models": 2, "imports": 1, "tryons": 1, "downloads": 0, "checkouts": 0}
-{"date": "2026-06-03", "landed": 25, "engaged": 6, "modal": 6, "signups": 1, "models": 0, "imports": 0, "tryons": 0, "downloads": 0, "checkouts": 0, "spend_lifetime": 631.32, "cpl": 21.04, "signups_meta": 30, "email_open": 97.5, "email_click": 2.5, "email_recipients": 80, "paying_customers": 0, "ig_followers": 223695, "activation_rate": 67, "aha_rate": 47, "payment_rate": 11}
+{"date": "2026-06-02", "landed": 12, "engaged": 4, "modal": 4, "signups": 3, "models": 2, "imports": 1, "tryons": 1, "downloads": 0, "checkouts": 0}
+{"date": "2026-06-03", "landed": 42, "engaged": 14, "modal": 14, "signups": 4, "models": 2, "imports": 1, "tryons": 2, "downloads": 0, "checkouts": 0, "spend_lifetime": 31.16, "cpl": 7.79, "signups_meta": 4, "email_open": 97.5, "email_click": 2.5, "email_recipients": 80, "paying_customers": 0, "ig_followers": 223690, "activation_rate": 67, "aha_rate": 48, "payment_rate": 10}

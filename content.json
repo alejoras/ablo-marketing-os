@@ -2061,17 +2061,20 @@
         "status": "Ready, fastest lever",
         "targets": "signup → model · model → try-on",
         "body": "The Activate (A1-A3) and AHA (B1-B3) templates exist but sit in no flow. Build two behavioral flows in Klaviyo (Added-to-List → Activate, Model Generated → AHA). Zero new copy, ships this week.",
-        "ladder": "Lever 2 · Conversion → signup-to-paid ≥ 8%"
+        "ladder": "Lever 2 · Conversion → signup-to-paid ≥ 8%",
+        "verify": { "clickup": ["Klaviyo flow", "email flows"], "doneWhen": "clickup" }
       },
       {
         "rank": "2",
-        "sev": "high",
+        "sev": "done",
         "title": "Fix the signup-modal leak",
         "owner": "Product",
-        "status": "Shipping",
-        "targets": "open → signup (43%)",
-        "body": "Promote Google one-click to the primary, full-width button and demote email. Mobile-first. Tracked by the signup experiment.",
-        "ladder": "Lever 2 · Conversion → signup-to-paid ≥ 8%"
+        "status": "Shipped — modal completion 33% → 42% (+9 pts)",
+        "done": true,
+        "targets": "open → signup",
+        "body": "Google one-click is now the primary full-width button, email demoted. Shipped and measured: modal completion before May 27 was 33% (22/66), after is 42% (36/85), a +9 pt lift. Next leak to chase is the activation gap (rank 3), not this one.",
+        "ladder": "Lever 2 · Conversion → signup-to-paid ≥ 8%",
+        "verify": { "signal": "signupModalShipped", "clickup": ["Google button", "sign-up modal"], "doneWhen": "signal" }
       },
       {
         "rank": "3",
@@ -2081,7 +2084,8 @@
         "status": "Investigating",
         "targets": "signup → model (67%)",
         "body": "Pull /studio session replays on the non-activators and find the control that stalls before the first Generate. Rage-click cluster confirmed. Coachmarks experiment live.",
-        "ladder": "Lever 2 · Activation → signup-to-activation ≥ 50%"
+        "ladder": "Lever 2 · Activation → signup-to-activation ≥ 50%",
+        "verify": { "clickup": ["coachmarks", "onboarding"], "doneWhen": "clickup" }
       },
       {
         "rank": "4",
@@ -2107,12 +2111,13 @@
       {
         "rank": "6",
         "sev": "med",
-        "title": "Restart Meta delivery, concentrate Kids/Swim",
+        "title": "Keep Meta delivery healthy, concentrate Kids/Swim",
         "owner": "Autopilot / Alejo",
-        "status": "Blocked (billing)",
+        "status": "Healthy — resumed Jun 2",
         "targets": "top of funnel",
-        "body": "Fix billing in Ads Manager, then let the autopilot reconcentrate spend on the Kids and Swim winners. Two zero-spend days flagged.",
-        "ladder": "Lever 1 · Grow top-of-funnel → CPL ≤ $20"
+        "body": "Delivery stalled May 28–Jun 1 (6 zero-spend days, billing) and resumed Jun 2–3. Kids funnel is firing again (40% signup rate, ~$3 CPL). Let the autopilot reconcentrate spend on the Kids and Swim winners and watch for another stall.",
+        "ladder": "Lever 1 · Grow top-of-funnel → CPL ≤ $20",
+        "verify": { "signal": "metaDeliveryLive" }
       },
       {
         "rank": "7",
@@ -2125,7 +2130,7 @@
         "ladder": "The brag · ARPU ≥ $50, validate willingness to pay"
       }
     ],
-    "loop": "The daily routine: read the live funnel, campaigns, experiments and lifecycle, re-rank this queue by impact on the KPIs above, update the status of every in-flight item, sync against ClickUp (the task source of truth), and write the result back. Over time it correlates each shipped fix with the KPI it moved, so the ranking gets smarter on its own.",
+    "loop": "Two layers keep this queue honest. Every build, a deterministic reconciler cross-checks each item against the live signals it already pulled (experiment results, the autopilot's delivery status, and matching ClickUp tasks) and flags any card whose hand-written status disagrees with reality, so stale priorities surface immediately. On top of that, the marketing-os-refresh reasoning pass re-ranks the queue by KPI impact and rewrites the items. Ranking is still human-owned; the reconciler is the always-on guardrail between reasoning passes.",
     "sources": [
       {
         "name": "PostHog (product funnel)",

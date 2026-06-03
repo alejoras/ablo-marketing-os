@@ -166,8 +166,19 @@ def fetch_meta():
             flags = (c.get("plan") or {}).get("flags") or []
             delivery = [f for f in flags if f.get("kind") == "DELIVERY_HEALTH"]
             if delivery:
-                meta["status"] = "Delivery paused"
-                meta["deliveryFlag"] = delivery[0].get("reason", "")
+                # The autopilot grades delivery: "high" = broken right now,
+                # "medium"/"low" = a past stall that has since resumed (the flag
+                # is informational, not a current pause). Only the high case is
+                # an actual pause -- otherwise the campaign is live and the flag
+                # reason is shown as a recovery note, not a "paused" alarm.
+                d0 = delivery[0]
+                reason = d0.get("reason", "")
+                meta["deliveryFlag"] = reason
+                # A "high" flag can lag reality: if the reason text says delivery
+                # has resumed, the campaign is live again even before the next
+                # cycle re-grades it. Treat that as Live, not paused.
+                resumed = "resume" in reason.lower()
+                meta["status"] = "Delivery paused" if (d0.get("severity") == "high" and not resumed) else "Live"
             else:
                 meta["status"] = "Live"
         except (ValueError, KeyError) as e:
@@ -519,8 +530,11 @@ def fetch_clickup(env):
     key = env.get("CLICKUP_TOKEN_ABLO")
     if not key:
         return None
+    # include_closed=true so the queue reconciler can see completed tasks (a card
+    # whose work is done in ClickUp should auto-flag, even though the visible feed
+    # below only lists the still-open tasks).
     url = (f"https://api.clickup.com/api/v2/list/{ABLO_STUDIO_LIST}/task"
-           "?archived=false&include_closed=false&subtasks=false&order_by=due_date")
+           "?archived=false&include_closed=true&subtasks=false&order_by=due_date")
     try:
         req = urllib.request.Request(url, headers={"Authorization": key})
         with urllib.request.urlopen(req, timeout=30) as r:
@@ -548,9 +562,12 @@ def fetch_clickup(env):
     active = [r for r in rows if r["type"] != "closed" and r["type"] != "done"]
     active.sort(key=lambda r: (order.get(r["status"], 2), r["due"] or "9"))
     log(f"ClickUp: {len(tasks)} task(s) · {counts}")
+    # `all` is the full compact pool (open + closed) used only by the reconciler;
+    # it is popped before the clickup block is embedded in data.js.
     return {"source": "ClickUp · live", "updated": datetime.now(timezone.utc).strftime("%B %-d, %Y"),
             "listUrl": f"https://app.clickup.com/9003194404/v/li/{ABLO_STUDIO_LIST}",
-            "counts": counts, "open": active[:12], "total": len(tasks)}
+            "counts": counts, "open": active[:12], "total": len(tasks),
+            "all": [{"name": r["name"], "status": r["status"], "type": r["type"], "url": r["url"]} for r in rows]}
 
 
 # -------------------------------------------------------------- Instagram ----
@@ -771,8 +788,116 @@ def fetch_signup_experiment(env, base):
         f"Modal completion before May 27: {before:.0f}% ({sb}/{ob}). "
         f"After: {after:.0f}% ({sa}/{oa}). Change: {delta:+.0f} pts.{note}"
     )
+    # Numeric result so the queue reconciler can use it as a deterministic
+    # done-signal (the ship is live the moment delta is measurable and positive).
+    out["delta"] = round(delta, 1)
+    out["before"] = round(before, 1)
+    out["after"] = round(after, 1)
+    out["shipped"] = bool(oa) and delta > 0
     log(f"signup before/after: {before:.0f}% -> {after:.0f}% ({delta:+.0f} pts)")
     return out
+
+
+# -------------------------------------------------------------- reconcile ----
+_DONE_TYPES = {"done", "closed"}
+
+
+def _best_clickup_match(keywords, pool):
+    """Return the ClickUp task whose name best matches the keyword list, or None.
+    A task matches when its lower-cased name contains a keyword phrase; ties break
+    toward more keyword hits, then toward a done/closed task (resolution wins)."""
+    best, best_score = None, 0
+    for t in pool:
+        name = (t.get("name") or "").lower()
+        hits = sum(1 for k in keywords if k.lower() in name)
+        if not hits:
+            continue
+        score = hits * 2 + (1 if t.get("type") in _DONE_TYPES else 0)
+        if score > best_score:
+            best, best_score = t, score
+    return best
+
+
+def reconcile_queue(content, meta_live, experiments, clickup):
+    """Cross-check each curated Command Center item against the live signals this
+    build already gathered, and attach a `live` overlay so the dashboard self-
+    corrects when the hand-written status drifts from reality.
+
+    Deterministic and non-destructive: it never rewrites the curated item, it only
+    annotates it. Items opt in with an optional `verify` block; items without one
+    are left untouched. This is the always-on guardrail between the slower
+    LLM-driven marketing-os-refresh reasoning passes.
+
+    verify = {
+      "signal":  "signupModalShipped" | "metaDeliveryLive",   # named live signals
+      "clickup": ["keyword", ...],                             # match a ClickUp task
+      "doneWhen": "signal" | "clickup"                         # what flips it to done
+    }
+    """
+    cc = content.get("commandCenter") or {}
+    items = cc.get("items") or []
+    pool = (clickup or {}).get("all") or []
+
+    # Named deterministic signals, each -> (is_done, evidence string) or None.
+    sx = next((e for e in experiments
+               if isinstance(e, dict) and isinstance(e.get("delta"), (int, float))
+               and ("signup" in (e.get("name", "").lower()) or "google" in (e.get("name", "").lower()))),
+              None)
+    signals = {}
+    if sx is not None:
+        signals["signupModalShipped"] = (
+            bool(sx.get("shipped")),
+            f"experiment: modal completion {sx.get('before')}% -> {sx.get('after')}% ({sx.get('delta'):+g} pts)",
+        )
+    if meta_live.get("status"):
+        live = meta_live["status"] == "Live"
+        signals["metaDeliveryLive"] = (live, f"autopilot: delivery {meta_live['status'].lower()}")
+
+    flagged = 0
+    for it in items:
+        v = it.get("verify")
+        if not v:
+            continue
+        evidence, ct = [], None
+        done_when = v.get("doneWhen")  # which channel is allowed to flip "done"
+        sig_done = ct_done = False
+
+        sig = v.get("signal")
+        if sig and sig in signals:
+            sig_done, sig_ev = signals[sig]
+            evidence.append(sig_ev)
+
+        kws = v.get("clickup")
+        if kws:
+            ct = _best_clickup_match(kws, pool)
+            if ct:
+                evidence.append(f"ClickUp: “{ct['name']}” is {ct['status']}")
+                ct_done = ct.get("type") in _DONE_TYPES
+
+        # Only the channel named by doneWhen may flip the card to done. With no
+        # doneWhen the signals are evidence-only (watch items never auto-complete).
+        done_signal = (sig_done if done_when == "signal"
+                       else ct_done if done_when == "clickup"
+                       else False)
+
+        # How the human wrote it.
+        written_done = bool(it.get("done")) or bool(re.search(r"shipp|done|complete|live again|resolved", it.get("status", ""), re.I))
+        verdict = "done" if (done_signal or written_done) else "active"
+        # Disagreement: live says done but the card doesn't (the bug that bit us),
+        # or the card claims done with no live evidence to back it.
+        disagree = (done_signal and not written_done) or (written_done and not done_signal and bool(evidence))
+
+        it["live"] = {
+            "verdict": verdict,
+            "doneSignal": done_signal,
+            "evidence": evidence,
+            "disagree": disagree,
+            "clickup": ({"name": ct["name"], "status": ct["status"], "url": ct.get("url", "")} if ct else None),
+        }
+        if disagree:
+            flagged += 1
+
+    log(f"reconcile: {sum(1 for it in items if it.get('verify'))} verified item(s), {flagged} disagreement(s)")
 
 
 # ------------------------------------------------------------------ build ----
@@ -829,13 +954,38 @@ def build():
     except (KeyError, TypeError):
         pass
 
-    signups = meta_live["signups"]
+    # Paid spend sub-line: the autopilot reports only the CURRENT flight's
+    # lifetime (it resets when a new campaign starts), so anchor all-time with the
+    # sum of closed flights + the live flight. Bump CLOSED_FLIGHTS_SPEND when a
+    # flight ends. Spend is context here, not a hero metric: CPL + weekly burn are
+    # what the call should act on.
+    CLOSED_FLIGHTS_SPEND = 631.32  # flights closed before Jun 2026 (prior signup-launch)
+
+    def _spend_sub(spend_str):
+        try:
+            cur = float(str(spend_str).replace("$", "").replace(",", "")) if spend_str else 0.0
+        except ValueError:
+            cur = 0.0
+        all_time = CLOSED_FLIGHTS_SPEND + cur
+        return f"this flight · ~${all_time:,.0f} all-time"
+
+    # Lifetime signups = ALL sources (Meta + LinkedIn + organic + direct), taken
+    # from the PostHog "Signed up" stage all-window count, not Meta-attributed only.
+    signups = meta_live["signups"]  # Meta-attributed (kept for CPL math)
+    total_signups = None
+    try:
+        sig_stage = next((s for s in funnel.get("stages", []) if s.get("key") == "signup"), None)
+        if sig_stage:
+            total_signups = sig_stage.get("counts", {}).get("all")
+    except (KeyError, TypeError):
+        pass
+    signups_value = str(total_signups) if total_signups is not None else (str(signups) if signups is not None else "66")
     kpis = [
         {"label": "Paying customers", "value": "0 / 5", "sub": "the brag · CAC < $300", "tone": "accent"},
-        {"label": "Lifetime signups", "value": str(signups) if signups is not None else "30", "sub": "all-time, paid", "tone": "default"},
-        {"label": "Cost per signup", "value": meta_live["cpl"] or "$21.04", "sub": "target ≤ $20", "tone": "default"},
+        {"label": "Lifetime signups", "value": signups_value, "sub": "all-time, all sources", "tone": "default"},
+        {"label": "Cost per signup", "value": meta_live["cpl"] or "$21.04", "sub": "paid · target ≤ $20", "tone": "default"},
         {"label": "Activation", "value": activation, "sub": "signup → try-on · target ≥ 50%", "tone": "default"},
-        {"label": "Paid spend", "value": meta_live["spend"] or "$631", "sub": "validation budget · $200/wk", "tone": "default"},
+        {"label": "Paid spend", "value": meta_live["spend"] or "$0", "sub": _spend_sub(meta_live["spend"]), "tone": "default"},
         {"label": "Live experiments", "value": str(len(experiments)) if experiments else "1", "sub": "running in PostHog", "tone": "default"},
     ]
 
@@ -848,6 +998,12 @@ def build():
     # skill, which reasons over the live funnel/campaigns/experiments/lifecycle.
     if "commandCenter" in content:
         content["commandCenter"]["updated"] = content["meta"]["updated"]
+        # Always-on deterministic guardrail: annotate each curated item with the
+        # live verdict so the queue self-corrects when its hand-written status
+        # drifts (the "stale priority" gap). Runs every build, no LLM needed.
+        reconcile_queue(content, meta_live, experiments, clickup)
+    if clickup:
+        clickup.pop("all", None)  # reconciler-only pool; don't embed it in data.js
     content["live"] = {
         "kpis": kpis,
         "experiments": experiments,

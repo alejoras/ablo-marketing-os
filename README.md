@@ -88,13 +88,16 @@ live sources  ─┘
 ## Editing the strategy
 
 Edit `content.json`, then run `python3 build.py` and refresh the page. No build tools,
-no dependencies (stdlib Python only). The weekly job will also pick up your edits.
+no dependencies (stdlib Python only). The daily job will also pick up your edits.
 
-## The weekly refresh
+## The daily refresh
 
 `refresh.sh` runs `build.py`, then commits and pushes so GitHub Pages redeploys.
-It is scheduled by launchd every **Monday 09:00** via
-`~/Library/LaunchAgents/com.alejo.ablo-marketing-os.weekly.plist`.
+It is scheduled by launchd **daily at 09:00** via
+`~/Library/LaunchAgents/com.alejo.ablo-marketing-os.weekly.plist` (the file is named
+`weekly` for historical reasons but its `StartCalendarInterval` has no `Weekday` key,
+so it fires every day). Each daily run re-pulls the live data and re-runs the queue
+reconciler, so a stale Command Center status is caught within a day, not a week.
 
 ```bash
 # run it now
@@ -144,16 +147,26 @@ Cloudflare Access or a similar auth proxy.
 | `refresh.sh` | Refresh wrapper (build + commit + push) |
 | `assets/` | Logo |
 
-## Toward a daily, self-improving routine
+## The self-improving routine (two layers)
 
-The end goal is an agent that reads this whole picture plus live campaign performance and
-proposes the next action toward the goal (first paying customer, CAC < $300). The pieces are
-in place: `build.py` already pulls the funnel and lifecycle live, and the **Command Center**
-is the structured surface (`commandCenter` in `content.json`) for the queue. A daily routine
-re-runs `build.py`, re-ranks the queue against the live numbers, updates in-flight item
-statuses, and commits — so each day's snapshot moves closer to the goal. To move from the
-current weekly launchd job to daily, change the `StartCalendarInterval` in the plist (below)
-to fire every day.
+The Command Center keeps itself honest in two layers, so a hand-written status can never
+quietly drift from reality (the failure that used to make the queue untrustworthy):
+
+1. **Deterministic reconciler (always on, every build).** `reconcile_queue()` in `build.py`
+   cross-checks each curated item against the live signals the same build already pulled, the
+   before/after experiment results, the autopilot's delivery status, and matching ClickUp
+   tasks (open or closed). Items opt in with a `verify` block in `content.json`
+   (`{signal, clickup, doneWhen}`). It attaches a non-destructive `live` overlay
+   (`verdict`, `evidence`, `disagree`) that the dashboard renders as a "live check" badge,
+   flagging any card whose written status disagrees with the live truth. No LLM, no network
+   beyond the pulls already done, runs daily.
+2. **LLM reasoning pass (`marketing-os-refresh` skill).** Reads the whole picture and re-ranks
+   the queue by KPI impact, rewrites item bodies, and proposes the next action toward the goal
+   (first paying customer, CAC < $300). Ranking stays human-owned; this pass proposes, you ship.
+
+The reconciler is the cheap guardrail between the heavier reasoning passes. To add a new
+self-verifying item, give it a `verify` block; to add a new signal, extend the `signals` dict
+in `reconcile_queue()`.
 
 ## Source of truth
 

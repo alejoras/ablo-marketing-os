@@ -838,7 +838,12 @@
             h('h3',{}, it.title),
             h('div',{class:'cmeta'}, chip(it.owner,'muted'), chip(it.status, it.done||/ready|shipp|done/i.test(it.status)?'success':/block/i.test(it.status)?'error':'warn'), it.targets?chip('targets: '+it.targets,'accent'):null),
             h('p',{style:'margin:0;color:var(--text2);font-size:13.5px'}, it.body),
-            it.ladder? h('div',{class:'ladder',html: ladderArrow+'<span>'+it.ladder+'</span>'}):null)
+            it.ladder? h('div',{class:'ladder',html: ladderArrow+'<span>'+it.ladder+'</span>'}):null,
+            it.live&&(it.live.disagree||(it.live.evidence||[]).length)? h('div',{class:'cmeta',style:'margin-top:8px;flex-wrap:wrap'},
+              chip((it.live.disagree?'live check · needs review':'live check · '+it.live.verdict), it.live.disagree?'error':it.live.verdict==='done'?'success':'muted'),
+              (it.live.evidence||[]).map(e=>chip(e,'muted')),
+              it.live.clickup&&it.live.clickup.url? h('a',{class:'linkout',style:'font-size:11.5px',href:it.live.clickup.url,target:'_blank',rel:'noopener',html:'task '+svg('M7 17L17 7M7 7h10v10')}):null
+            ):null)
         ))),
         cu? blocktitle('Live from ClickUp · Ablo Studio (source of truth)') : null,
         cu? h('div',{class:'card flat'},

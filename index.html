@@ -294,6 +294,10 @@
     .cmd .rk { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0; }
     .cmd .rk.high { background:rgba(248,113,113,0.14); color:var(--error); }
     .cmd .rk.med { background:rgba(201,169,110,0.16); color:var(--accent-dim); }
+    .cmd .rk.done { background:rgba(74,222,128,0.16); color:var(--success); }
+    .cmd .rk.done svg { width:15px; height:15px; stroke-width:2.4; }
+    .cmd.done { opacity:.55; }
+    .cmd.done h3 { text-decoration:line-through; text-decoration-color:var(--muted); }
     .cmd h3 { font-size:14.5px; font-weight:600; margin:0 0 6px; }
     .cmd .cmeta { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
     .srchealth { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:26px; }
@@ -756,11 +760,11 @@
         h('div',{class:'srchealth'}, (cc.sources||[]).map(s=>h('div',{class:'s'},
           h('span',{class:'dot '+(s.tone==='accent'?'live':'cached')}), h('span',{}, s.name), h('span',{class:'how'},'· '+s.how)))),
         blocktitle('Action queue · ranked by leverage'),
-        h('div',{class:'card flat'}, (cc.items||[]).map(it=>h('div',{class:'cmd'},
-          h('div',{class:'rk '+(it.sev==='high'?'high':'med')}, it.rank),
+        h('div',{class:'card flat'}, (cc.items||[]).map(it=>h('div',{class:'cmd'+(it.done?' done':'')},
+          it.done ? h('div',{class:'rk done',html:svg('M20 6L9 17l-5-5')}) : h('div',{class:'rk '+(it.sev==='high'?'high':'med')}, it.rank),
           h('div',{},
             h('h3',{}, it.title),
-            h('div',{class:'cmeta'}, chip(it.owner,'muted'), chip(it.status, /ready|shipping/i.test(it.status)?'success':/block/i.test(it.status)?'error':'warn'), it.targets?chip('targets: '+it.targets,'accent'):null),
+            h('div',{class:'cmeta'}, chip(it.owner,'muted'), chip(it.status, it.done||/ready|shipp|done/i.test(it.status)?'success':/block/i.test(it.status)?'error':'warn'), it.targets?chip('targets: '+it.targets,'accent'):null),
             h('p',{style:'margin:0;color:var(--text2);font-size:13.5px'}, it.body))
         ))),
         blocktitle('The daily loop'),

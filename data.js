@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T05:07:23.128206+00:00"
+    "updatedISO": "2026-06-03T05:11:17.256591+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -2068,10 +2068,10 @@ window.ABLO_OS = {
           "sub": "$pageview",
           "group": "Acquire",
           "counts": {
-            "d7": 333,
-            "d30": 754,
-            "d90": 754,
-            "all": 754
+            "d7": 334,
+            "d30": 755,
+            "d90": 755,
+            "all": 755
           }
         },
         {
@@ -2593,7 +2593,7 @@ window.ABLO_OS = {
         },
         {
           "date": "2026-06-03",
-          "landed": 19,
+          "landed": 20,
           "engaged": 4,
           "modal": 4,
           "signups": 1,

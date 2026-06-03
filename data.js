@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T05:46:15.889850+00:00"
+    "updatedISO": "2026-06-03T05:54:11.607994+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -156,7 +156,67 @@ window.ABLO_OS = {
         "target": "≥ 8%"
       }
     ],
-    "arc": "Wave 1 (done) → Wave 2 LinkedIn replication (done) → customer interviews shape Wave 3 messaging → end-of-June goal: first paying customer. At $200/week this is a validation budget, not a growth budget. The lever that decides viability here is conversion and ARPU, not spend."
+    "arc": "Wave 1 (done) → Wave 2 LinkedIn replication (done) → customer interviews shape Wave 3 messaging → end-of-June goal: first paying customer. At $200/week this is a validation budget, not a growth budget. The lever that decides viability here is conversion and ARPU, not spend.",
+    "okrs": [
+      {
+        "quarter": "Q2 2026",
+        "window": "Apr–Jun (closing)",
+        "theme": "Prove the wedge converts",
+        "objective": "Turn cheap signups into the first proof that the wedge produces revenue.",
+        "krs": [
+          {
+            "kr": "First paying self-serve customer",
+            "target": "by Jun 30",
+            "current": "0",
+            "status": "at-risk"
+          },
+          {
+            "kr": "Fix the two funnel leaks (signup modal + first generate)",
+            "target": "both shipped",
+            "current": "modal 33→44% shipped; activation in progress",
+            "status": "on-track"
+          },
+          {
+            "kr": "Price-ask test with 5 Kids + 5 Swim founders",
+            "target": "10 interviews",
+            "current": "not started",
+            "status": "not-started"
+          }
+        ]
+      },
+      {
+        "quarter": "Q3 2026",
+        "window": "Jul–Sep",
+        "theme": "A repeatable acquisition engine",
+        "objective": "Find one channel that reliably turns spend into paying customers, then scale it.",
+        "krs": [
+          {
+            "kr": "Paying self-serve customers at validated CAC < $300",
+            "target": "5",
+            "current": "0",
+            "status": "not-started"
+          },
+          {
+            "kr": "Signup → paid (now measurable via purchase_completed)",
+            "target": "≥ 8%",
+            "current": "instrumented, awaiting data",
+            "status": "not-started"
+          },
+          {
+            "kr": "One acquisition channel with stable CAC, identified and scaled",
+            "target": "1 channel",
+            "current": "testing",
+            "status": "not-started"
+          },
+          {
+            "kr": "ARPU with a top-up / power tier live",
+            "target": "≥ $50/mo",
+            "current": "n/a",
+            "status": "not-started"
+          }
+        ]
+      }
+    ]
   },
   "icp": {
     "buyer": "Founder / Owner / CEO of a small (2 to 50, mostly 2 to 10 employee) US fashion brand in Retail Apparel & Fashion or Apparel Manufacturing.",
@@ -507,7 +567,8 @@ window.ABLO_OS = {
       "started": "May 27, 2026",
       "hypothesis": "Promoting Continue with Google to the primary action and dropping email/password (magic link kept as a secondary link) lifts signup-modal completion. The magic-link path forced an inbox round-trip most people never returned from. Shipped May 27 (Google added), May 28 (email/password removed).",
       "signal": "Measuring before vs after May 27. Live before/after completion computes on each refresh."
-    }
+    },
+    "policy": "Focus beats volume. Run no more than 2 to 3 experiments at once, one primary test per funnel stage. With traffic this low, more concurrent tests dilute the signal and slow every conclusion. Ship the winner, then start the next."
   },
   "campaignsCurated": {
     "name": "Signup Launch (2026-05)",
@@ -576,7 +637,143 @@ window.ABLO_OS = {
       "Audience x stage: the message at each funnel stage, per lead segment.",
       "Formats + cadence: what we can actually produce.",
       "Document the prompt / recipe here once the on-brand drafting loop is proven."
-    ]
+    ],
+    "fuelIntro": "Fuel (Emily Kramer, MKT1): the assets that power distribution. Every piece ladders to a messaging pillar, a segment, and the goal (first paying customers). The product's own output is the cheapest, most credible fuel we have.",
+    "engines": [
+      {
+        "name": "Founder-led LinkedIn",
+        "role": "Primary",
+        "note": "Deniz + Won posts drove the discovery campaign. Best fit for this buyer. Carries POV + research + build-in-public."
+      },
+      {
+        "name": "Meta / Instagram (paid + organic)",
+        "role": "Demand",
+        "note": "Works for Kids and Swim. Carries product proof: before/after, shot-in-minutes, per-segment demos."
+      },
+      {
+        "name": "SEO / owned",
+        "role": "Compounding",
+        "note": "The research report, the cost calculator, and the comparison posts are linkable and rank over time."
+      },
+      {
+        "name": "Lifecycle email (Klaviyo)",
+        "role": "Activation",
+        "note": "Carries proof and the AHA nudge to signups. Wire the prepared flows first."
+      }
+    ],
+    "fuel": [
+      {
+        "id": "F1",
+        "title": "The State of On-Model Imagery 2026",
+        "type": "Original research",
+        "pillar": "P2 photoshoot becoming optional",
+        "icp": "All segments",
+        "format": "Data report + landing page + LinkedIn carousel",
+        "channel": "SEO + Founder LinkedIn + outreach",
+        "why": "Original data is the most linkable, credible fuel. Survey small fashion brands: shoot spend, lead times, AI adoption %, the hardest body to cast. Becomes the flagship asset everything else cites. Seed it from a poll of the signup list.",
+        "status": "flagship idea"
+      },
+      {
+        "id": "F2",
+        "title": "The photoshoot is becoming optional",
+        "type": "Founder POV",
+        "pillar": "P2",
+        "icp": "Founders",
+        "format": "LinkedIn long post + blog",
+        "channel": "Founder LinkedIn",
+        "why": "Names the shift and the wedge (the bodies you could never afford to shoot). Founder voice is the proven engine for this buyer.",
+        "status": "idea"
+      },
+      {
+        "id": "F3",
+        "title": "I shot an entire kids' drop in 20 minutes",
+        "type": "Product proof",
+        "pillar": "P1 campaign-ready in minutes + P3 ship without a shoot",
+        "icp": "Kids & babywear (lead)",
+        "format": "Before/after reel + carousel",
+        "channel": "Meta/IG + LinkedIn",
+        "why": "The lead segment's exact pain: you cannot cheaply shoot babies. Shows the result first.",
+        "status": "idea"
+      },
+      {
+        "id": "F4",
+        "title": "Every body, every size, no casting",
+        "type": "Product proof",
+        "pillar": "P1 bodies you can't shoot + P4 not AI slop",
+        "icp": "Swim & size-inclusive (co-lead)",
+        "format": "One product on many bodies, video",
+        "channel": "Meta/IG",
+        "why": "The most acute, most expensive shoot in fashion. Lead with garment fidelity to pre-empt the AI-slop objection.",
+        "status": "idea"
+      },
+      {
+        "id": "F5",
+        "title": "AI on-model vs the $5K photoshoot: a real cost breakdown",
+        "type": "Educational",
+        "pillar": "P2",
+        "icp": "Founders",
+        "format": "Blog + LinkedIn",
+        "channel": "SEO + LinkedIn",
+        "why": "Honest cost + time comparison, including where real shoots still win. Pairs with the calculator (F9).",
+        "status": "idea"
+      },
+      {
+        "id": "F6",
+        "title": "Background removal is not on-model: where free tools stop",
+        "type": "Educational POV",
+        "pillar": "Differentiator (the wedge)",
+        "icp": "Founders",
+        "format": "LinkedIn + blog",
+        "channel": "LinkedIn + SEO",
+        "why": "Reframes against the ~$5 free-tool floor (the PhotoRoom lesson). Teaches the market that the defensible job is the believable on-model shot.",
+        "status": "idea"
+      },
+      {
+        "id": "F7",
+        "title": "On-model in minutes: live teardown series",
+        "type": "Product proof series",
+        "pillar": "P1",
+        "icp": "Rotating by segment",
+        "format": "Recurring carousel/video",
+        "channel": "LinkedIn + IG",
+        "why": "Pick a real small brand's product page, show the AI on-model result. Endless, cheap, repeatable fuel straight from product output.",
+        "status": "idea"
+      },
+      {
+        "id": "F8",
+        "title": "How [Water Vixen Swim / Agenzia Kids] ships a drop without a photographer",
+        "type": "Customer story",
+        "pillar": "P1 + P5 built by fashion people",
+        "icp": "Swim / Kids",
+        "format": "Case study + quote",
+        "channel": "All engines",
+        "why": "The proof we most need to earn: a named, permissioned Studio customer. Blocked until a brand says yes.",
+        "status": "blocked on customer"
+      },
+      {
+        "id": "F9",
+        "title": "Photoshoot cost calculator",
+        "type": "Interactive tool",
+        "pillar": "P2",
+        "icp": "Founders",
+        "format": "Free embedded calculator",
+        "channel": "SEO + social",
+        "why": "Input drops, SKUs, models, get estimated shoot cost vs Ablo. Lead-gen + linkable + a reason to share.",
+        "status": "idea"
+      },
+      {
+        "id": "F10",
+        "title": "Build-in-public: what the data taught us about small fashion brands",
+        "type": "Founder POV",
+        "pillar": "P5",
+        "icp": "Founders",
+        "format": "LinkedIn thread",
+        "channel": "Founder LinkedIn",
+        "why": "Share what the OS surfaces (the bodies brands can't shoot, the funnel learnings). Builds the credibility that we are fashion people, not a generic image-AI toy.",
+        "status": "idea"
+      }
+    ],
+    "calendarNote": "The Content Calendar tab schedules from this fuel backlog. Near-term pieces are seeded there; the backlog is the source of ideas."
   },
   "competition": {
     "intro": "Studio is positioned against budget categories, not feature-comparison competitors.",
@@ -2058,11 +2255,29 @@ window.ABLO_OS = {
         "owner": "Marketing"
       },
       {
+        "date": "2026-06-06",
+        "channel": "LinkedIn",
+        "title": "The photoshoot is becoming optional (founder POV)",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "F2",
+        "pillar": "P2"
+      },
+      {
         "date": "2026-06-09",
         "channel": "Instagram",
         "title": "Swim fit on diverse bodies carousel",
         "status": "planned",
         "owner": "Marketing"
+      },
+      {
+        "date": "2026-06-09",
+        "channel": "Instagram",
+        "title": "Every body, every size, no casting (swim demo)",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "F4",
+        "pillar": "P1"
       },
       {
         "date": "2026-06-10",
@@ -2079,11 +2294,38 @@ window.ABLO_OS = {
         "owner": "Won"
       },
       {
+        "date": "2026-06-11",
+        "channel": "Blog",
+        "title": "AI on-model vs the $5K photoshoot: cost breakdown",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "F5",
+        "pillar": "P2"
+      },
+      {
+        "date": "2026-06-12",
+        "channel": "LinkedIn",
+        "title": "Background removal is not on-model (the wedge)",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "F6",
+        "pillar": "Differentiator"
+      },
+      {
         "date": "2026-06-13",
         "channel": "Blog",
         "title": "Case study: a kids brand ships a drop without a shoot",
         "status": "planned",
         "owner": "Marketing"
+      },
+      {
+        "date": "2026-06-13",
+        "channel": "Instagram",
+        "title": "I shot an entire kids' drop in 20 minutes",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "F3",
+        "pillar": "P1"
       },
       {
         "date": "2026-06-16",
@@ -2093,11 +2335,29 @@ window.ABLO_OS = {
         "owner": "Marketing"
       },
       {
+        "date": "2026-06-16",
+        "channel": "Email",
+        "title": "AHA nudge: your first on-model shot is waiting",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "lifecycle",
+        "pillar": "P1"
+      },
+      {
         "date": "2026-06-18",
         "channel": "Campaign",
         "title": "Wave 3 paid launch — Kids + Swim",
         "status": "planned",
         "owner": "Marketing"
+      },
+      {
+        "date": "2026-06-18",
+        "channel": "LinkedIn",
+        "title": "Teardown #1: a real brand's product page, on-model",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "F7",
+        "pillar": "P1"
       },
       {
         "date": "2026-06-20",
@@ -2112,6 +2372,15 @@ window.ABLO_OS = {
         "title": "Post-aha upgrade nudge (price-ask cohort)",
         "status": "planned",
         "owner": "Marketing"
+      },
+      {
+        "date": "2026-06-23",
+        "channel": "Blog",
+        "title": "Launch: The State of On-Model Imagery 2026 (research)",
+        "status": "planned",
+        "owner": "Marketing",
+        "fuel": "F1",
+        "pillar": "P2"
       },
       {
         "date": "2026-06-25",
@@ -2320,7 +2589,7 @@ window.ABLO_OS = {
           "sub": "model_generated",
           "group": "Activate",
           "counts": {
-            "d7": 23,
+            "d7": 22,
             "d30": 43,
             "d90": 43,
             "all": 43
@@ -2652,7 +2921,7 @@ window.ABLO_OS = {
       "listUrl": "https://app.clickup.com/9003194404/v/li/901415977874",
       "counts": {
         "in progress": 5,
-        "to do": 18,
+        "to do": 22,
         "done": 14,
         "review": 5
       },
@@ -2703,6 +2972,24 @@ window.ABLO_OS = {
           "assignee": "Alejo Escrivá"
         },
         {
+          "name": "Build out the self-improving marketing-agent loop (Command Center auto-rewrite)",
+          "status": "to do",
+          "color": "#87909e",
+          "type": "open",
+          "url": "https://app.clickup.com/t/86ba9010y",
+          "due": "",
+          "assignee": "Alejo Escrivá"
+        },
+        {
+          "name": "Wire live LinkedIn ad metrics into the Marketing OS",
+          "status": "to do",
+          "color": "#87909e",
+          "type": "open",
+          "url": "https://app.clickup.com/t/86ba9010t",
+          "due": "",
+          "assignee": "Alejo Escrivá"
+        },
+        {
           "name": "Daily ads report via email (Hermes is OUT of scope)",
           "status": "to do",
           "color": "#87909e",
@@ -2746,27 +3033,9 @@ window.ABLO_OS = {
           "url": "https://app.clickup.com/t/86ba823dh",
           "due": "",
           "assignee": "Alejo Escrivá"
-        },
-        {
-          "name": "Build paid-conversion (post-AHA) Klaviyo flow",
-          "status": "to do",
-          "color": "#87909e",
-          "type": "open",
-          "url": "https://app.clickup.com/t/86ba70be6",
-          "due": "",
-          "assignee": "Alejo Escrivá"
-        },
-        {
-          "name": "Cross-device PostHog attribution: distinct_id through magic-link URL",
-          "status": "to do",
-          "color": "#87909e",
-          "type": "open",
-          "url": "https://app.clickup.com/t/86ba2wp4t",
-          "due": "",
-          "assignee": "Alejo Escrivá"
         }
       ],
-      "total": 42
+      "total": 46
     },
     "instagram": {
       "username": "ablo.ai",

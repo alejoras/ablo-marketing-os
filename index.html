@@ -486,6 +486,18 @@
           card({cls:'accent',eyebrow:'North Star',title:'',body:g.northStar}),
           card({cls:'accent lead',eyebrow:'The brag',title:'',body:g.theBrag})
         ),
+        g.okrs? blocktitle('OKRs by quarter') : null,
+        g.okrs? h('div',{class:'stack'}, (g.okrs||[]).map(q=>card({children:[
+          h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px'},
+            h('h3',{style:'margin:0'}, q.quarter+'  ', h('span',{class:'small',style:'color:var(--muted);font-weight:400'}, q.window)),
+            chip(q.theme,'accent')),
+          h('p',{style:'margin:0 0 12px'}, h('b',{style:'color:var(--text)'},'Objective. '), q.objective),
+          h('div',{class:'card flat',style:'padding:2px 16px'}, (q.krs||[]).map(k=>h('div',{class:'kv'},
+            h('div',{class:'k',style:'flex:0 0 52%;text-transform:none;color:var(--text2);letter-spacing:0'}, k.kr),
+            h('div',{class:'v',style:'display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap'},
+              h('span',{class:'small'}, k.current+' → ', h('span',{style:'color:var(--accent)'},k.target)),
+              chip(k.status, k.status==='on-track'?'success':k.status==='at-risk'?'warn':k.status==='done'?'accent':'muted')))))
+        ]}))) : null,
         blocktitle('KPO goals'),
         h('div',{class:'stack'}, (g.kpoGoals||[]).map(k=>card({cls:'flat',children:[
           h('div',{style:'display:flex;gap:14px;align-items:flex-start'}, chip(k.type,k.tone), h('p',{style:'margin:1px 0 0'},k.text))
@@ -1036,6 +1048,7 @@
         h('div',{class:'freshness'},
           h('span',{class:'pill'}, h('span',{class:'dot '+(live?'live':'cached')}), 'PostHog · '+(live?'live':'cached snapshot')),
           h('span',{},'Project: Ablo Studio (419152)')),
+        ec.policy? h('div',{class:'callout',style:'margin-bottom:8px'}, h('div',{class:'tag'},'Operating policy'), h('p',{}, ec.policy)) : null,
         blocktitle('Live experiments'),
         ex.length? h('div',{class:'stack'}, ex.map(e=>card({children:[
           h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px'},
@@ -1092,16 +1105,25 @@
 
     S.content = ()=>{ const c=D.content||{};
       return frag(
-        sectionHead('Content Strategy','The engine (and the honest gap)',null),
-        h('div',{class:'callout warn'}, h('div',{class:'tag'},'Status · deliberate stub'), h('p',{},c.status)),
-        blocktitle('The content engine'),
-        h('div',{class:'callout'}, h('div',{class:'tag'},'Product output as fuel'), h('p',{},c.engine)),
+        sectionHead('Content Strategy','Fuel that ladders to the goal', c.fuelIntro||null),
+        c.engines? blocktitle('Distribution engines') : null,
+        c.engines? h('div',{class:'grid g2'}, (c.engines||[]).map(e=>card({title:e.name, chip:{t:e.role, tone:/primary/i.test(e.role)?'accent':'muted'}, body:e.note}))) : null,
+        blocktitle('Fuel backlog · ranked ideas'),
+        h('div',{class:'stack'}, (c.fuel||[]).map(f=>card({children:[
+          h('div',{style:'display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px'},
+            h('span',{class:'mono',style:'color:var(--accent);font-weight:600'}, f.id),
+            h('h3',{style:'margin:0;flex:1'}, f.title),
+            chip(f.status, /flagship/i.test(f.status)?'accent':/block/i.test(f.status)?'warn':'muted')),
+          h('div',{class:'chips',style:'margin-bottom:10px'}, chip(f.type,'accent'), chip('pillar: '+f.pillar,'muted'), chip(f.icp,'muted'), chip(f.format,'muted'), chip(f.channel,'muted')),
+          h('p',{}, f.why)
+        ]}))),
+        c.calendarNote? h('div',{class:'callout',style:'margin-top:18px'}, h('div',{class:'tag'},'Connected to the calendar'), h('p',{}, c.calendarNote)) : null,
         blocktitle('The repeatable recipe'),
         card({cls:'flat',body:c.recipe}),
+        blocktitle('The product output is fuel'),
+        h('div',{class:'callout'}, h('div',{class:'tag'},'Cheapest, most credible'), h('p',{},c.engine)),
         blocktitle('Channel evidence'),
-        card({cls:'flat',children:[bullets(c.channels||[])]}),
-        blocktitle('What to fill when content goes in scope'),
-        card({cls:'flat',children:[bullets(c.toFill||[])]})
+        card({cls:'flat',children:[bullets(c.channels||[])]})
       );
     };
 

@@ -112,12 +112,11 @@ Logs: `.refresh.log` (build + git output).
 
 ## Live PostHog experiments
 
-`build.py` pulls experiments via the PostHog REST API using `POSTHOG_PERSONAL_API_KEY`
-from `~/.claude/.env`. That key currently lacks the `experiment:read` and
-`feature_flag:read` scopes, so the Experiments tab shows an accurate **cached snapshot**
-(labeled as such). To switch to fully live: PostHog → Settings → Personal API keys →
-add the `experiment:read` and `feature_flag:read` scopes. No code change needed; the next
-refresh will show "live."
+`build.py` pulls experiments **live** via the PostHog REST API using
+`POSTHOG_PERSONAL_API_KEY` from `~/.claude/.env` (the key has the `experiment:read` /
+`feature_flag:read` scopes). If a pull fails or the scopes are ever revoked, the
+Experiments tab degrades to an accurate **cached snapshot**, labeled as such in the UI —
+the same graceful-degradation pattern every live source uses.
 
 ## Publishing (GitHub Pages)
 
@@ -144,8 +143,12 @@ Cloudflare Access or a similar auth proxy.
 | `build.py` | Generator: content.json + live PostHog/Klaviyo/autopilot → data.js + history.jsonl |
 | `gen_sections.py` | Seeds the curated funnel/lifecycle/channels/command-center fallbacks |
 | `gen_battlecard.py` | Imports the competitive battlecard workbook into content.json |
+| `gen_connect.py` | Seeds Command Center ladders, objectives, and the Content Calendar |
+| `gen_marketing_call.py` | Drafts the weekly marketing-call agenda from `data.js` (read-only consumer) |
 | `refresh.sh` | Refresh wrapper (build + commit + push) |
 | `assets/` | Logo |
+
+The `gen_*.py` scripts are **standalone** one-shot seeders / consumers — none are imported by `build.py`. Run them by hand when you need to (re)seed a section; the daily pipeline is just `build.py`.
 
 ## The self-improving routine (two layers)
 

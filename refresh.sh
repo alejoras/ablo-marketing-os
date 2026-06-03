@@ -25,11 +25,11 @@ fi
 
 if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
   git add -A >> "$LOG" 2>&1
-  git commit -m "chore: weekly data refresh $(date '+%Y-%m-%d')" >> "$LOG" 2>&1
+  git commit -m "chore: daily data refresh $(date '+%Y-%m-%d')" >> "$LOG" 2>&1
   if git push origin main >> "$LOG" 2>&1; then
     echo "pushed OK" >> "$LOG"
   else
-    echo "push failed (network/auth?) -- will retry next week" >> "$LOG"
+    echo "push failed (network/auth?) -- will retry next run" >> "$LOG"
   fi
 else
   echo "no changes" >> "$LOG"

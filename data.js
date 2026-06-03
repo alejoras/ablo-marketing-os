@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T18:43:47.926773+00:00"
+    "updatedISO": "2026-06-03T18:56:29.796487+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -2772,10 +2772,10 @@ window.ABLO_OS = {
           "sub": "$pageview",
           "group": "Acquire",
           "counts": {
-            "d7": 286,
-            "d30": 780,
-            "d90": 780,
-            "all": 780
+            "d7": 283,
+            "d30": 781,
+            "d90": 781,
+            "all": 781
           }
         },
         {
@@ -2797,7 +2797,7 @@ window.ABLO_OS = {
           "sub": "signup_modal_opened",
           "group": "Acquire",
           "counts": {
-            "d7": 71,
+            "d7": 70,
             "d30": 161,
             "d90": 161,
             "all": 161
@@ -2809,7 +2809,7 @@ window.ABLO_OS = {
           "sub": "signup_completed",
           "group": "Acquire",
           "counts": {
-            "d7": 33,
+            "d7": 32,
             "d30": 68,
             "d90": 68,
             "all": 68
@@ -2834,7 +2834,7 @@ window.ABLO_OS = {
           "sub": "model_generated",
           "group": "Activate",
           "counts": {
-            "d7": 23,
+            "d7": 22,
             "d30": 47,
             "d90": 47,
             "all": 47
@@ -2847,7 +2847,7 @@ window.ABLO_OS = {
           "sub": "product_imported",
           "group": "Activate",
           "counts": {
-            "d7": 16,
+            "d7": 15,
             "d30": 34,
             "d90": 34,
             "all": 34
@@ -2884,7 +2884,7 @@ window.ABLO_OS = {
           "sub": "pricing_plan_clicked",
           "group": "Pay",
           "counts": {
-            "d7": 1,
+            "d7": 0,
             "d30": 8,
             "d90": 8,
             "all": 8
@@ -2896,7 +2896,7 @@ window.ABLO_OS = {
           "sub": "checkout_started",
           "group": "Pay",
           "counts": {
-            "d7": 1,
+            "d7": 0,
             "d30": 8,
             "d90": 8,
             "all": 8
@@ -3125,7 +3125,7 @@ window.ABLO_OS = {
         },
         {
           "channel": "Meta Ads",
-          "users": 436,
+          "users": 437,
           "signups": 19,
           "tryons": 7,
           "checkouts": 0,
@@ -3218,7 +3218,7 @@ window.ABLO_OS = {
           "assignee": "Alejo Escrivá"
         },
         {
-          "name": "Scope Stripe tracking to Ablo Studio self-serve",
+          "name": "Verify purchase_completed fires on a real Studio purchase",
           "status": "to do",
           "color": "#87909e",
           "type": "open",
@@ -3475,7 +3475,7 @@ window.ABLO_OS = {
         },
         {
           "date": "2026-06-03",
-          "landed": 50,
+          "landed": 51,
           "engaged": 17,
           "modal": 17,
           "signups": 5,

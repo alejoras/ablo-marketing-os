@@ -592,28 +592,39 @@
     };
 
     S.funnel = ()=>{ const f=(L.funnel)||D.funnelCurated||{}; const live=(L.refreshedSources||{}).funnel;
-      const win = (f.windows||[]).includes(funnelWin) ? funnelWin : 'all';
+      const wins = f.windows||['all'];
+      let win = wins.includes(funnelWin) ? funnelWin : 'all';
       const stages=f.stages||[]; const wl=f.windowLabels||{};
-      const maxc=Math.max(1, ...stages.map(s=>(s.counts||{})[win]||0));
       const stepClass = p => p==null?'':(p>100?'step-mid':p>=70?'step-hi':p>=40?'step-mid':'step-lo');
 
-      const selector=h('div',{class:'win-sel'}, (f.windows||['all']).map(w=>
-        h('button',{class:(w===win?'on':''),onclick:function(){ funnelWin=w; render('funnel'); }}, wl[w]||w)));
-
-      // full reach funnel
-      const bars=[]; let prev=null, grp=null;
-      stages.forEach(s=>{
-        if(s.group && s.group!==grp){ bars.push(h('div',{class:'fgroup'}, s.group)); grp=s.group; }
-        const c=(s.counts||{})[win]||0;
-        const step = prev!=null ? Math.round(c/prev*100) : null;
-        bars.push(h('div',{class:'fbar'+(s.aha?' aha':'')+(s.payment?' pay':'')},
-          h('div',{class:'lab'}, h('span',{}, s.label, s.aha?h('span',{class:'badge-aha'},'aha'):s.payment?h('span',{class:'badge-pay'},'pay'):null), s.sub?h('span',{class:'ev'},s.sub):null),
-          h('div',{class:'track'}, h('div',{class:'fill',style:'width:'+(c/maxc*100).toFixed(1)+'%'})),
-          h('div',{class:'meta'}, h('div',{class:'n'}, String(c)),
-            step!=null ? h('div',{class:'step '+stepClass(step)}, (step>100?'≥100%':step+'%')+' of prev') : h('div',{class:'step',style:'color:var(--muted)'},'entry'))
-        ));
-        prev=c;
-      });
+      // The bars rebuild in place when the window changes — no full re-render,
+      // so scroll position is preserved.
+      const barsWrap = h('div',{class:'card flat'});
+      function fillBars(){
+        const maxc=Math.max(1, ...stages.map(s=>(s.counts||{})[win]||0));
+        barsWrap.innerHTML='';
+        let prev=null, grp=null;
+        stages.forEach(s=>{
+          if(s.group && s.group!==grp){ barsWrap.append(h('div',{class:'fgroup'}, s.group)); grp=s.group; }
+          const c=(s.counts||{})[win]||0;
+          const step = prev!=null ? Math.round(c/prev*100) : null;
+          barsWrap.append(h('div',{class:'fbar'+(s.aha?' aha':'')+(s.payment?' pay':'')},
+            h('div',{class:'lab'}, h('span',{}, s.label, s.aha?h('span',{class:'badge-aha'},'aha'):s.payment?h('span',{class:'badge-pay'},'pay'):null), s.sub?h('span',{class:'ev'},s.sub):null),
+            h('div',{class:'track'}, h('div',{class:'fill',style:'width:'+(c/maxc*100).toFixed(1)+'%'})),
+            h('div',{class:'meta'}, h('div',{class:'n'}, String(c)),
+              step!=null ? h('div',{class:'step '+stepClass(step)}, (step>100?'≥100%':step+'%')+' of prev') : h('div',{class:'step',style:'color:var(--muted)'},'entry'))
+          ));
+          prev=c;
+        });
+      }
+      const selBtns = wins.map(w=>h('button',{class:(w===win?'on':'')}, wl[w]||w));
+      selBtns.forEach((btn,i)=>btn.addEventListener('click',()=>{
+        win = wins[i]; funnelWin = win;
+        selBtns.forEach(b=>b.classList.toggle('on', b===btn));
+        fillBars();
+      }));
+      const selector=h('div',{class:'win-sel'}, selBtns);
+      fillBars();
 
       // activation spine (same-user, monotonic)
       const sp=f.spine||{}; const ss=sp.steps||[];
@@ -635,7 +646,7 @@
         h('div',{class:'card spine'}, spineRows),
         blocktitle('Full happy path · distinct users per milestone'),
         selector,
-        h('div',{class:'card flat'}, bars),
+        barsWrap,
         blocktitle('Where it leaks'),
         h('div',{class:'stack'}, (f.drops||[]).map(d=>card({cls:'flat',children:[
           h('div',{style:'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px'},

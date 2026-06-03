@@ -26,6 +26,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 CONTENT = HERE / "content.json"
 OUT = HERE / "data.js"
+HISTORY = HERE / "history.jsonl"  # append-only daily time-series (one row per UTC day)
 
 # The ablo-ads-autopilot keeps fresh Meta state here (refreshed every 6h).
 AUTOPILOT = Path(
@@ -436,6 +437,105 @@ def fetch_lifecycle(env, base):
     return life
 
 
+# ------------------------------------------------------------------ history --
+# Daily distinct-user reach per stage, reconstructed in full from the PostHog
+# event log on every run (self-healing — no drift, no dedupe needed). Non-
+# reconstructable fields (Meta cost, email rates, cumulative rates) are
+# persisted forward from today in history.jsonl.
+DAILY_Q = """
+SELECT toString(toDate(timestamp)) AS d,
+  count(DISTINCT if(event = '$pageview', person_id, NULL)) AS landed,
+  count(DISTINCT if(event IN ('cta_clicked','book_call_clicked','surprise_me_clicked'), person_id, NULL)) AS engaged,
+  count(DISTINCT if(event = 'signup_modal_opened', person_id, NULL)) AS modal,
+  count(DISTINCT if(event = 'signup_completed', person_id, NULL)) AS signups,
+  count(DISTINCT if(event = 'model_generated', person_id, NULL)) AS models,
+  count(DISTINCT if(event IN ('product_imported','product_url_submitted'), person_id, NULL)) AS imports,
+  count(DISTINCT if(event = 'tryon_completed', person_id, NULL)) AS tryons,
+  count(DISTINCT if(event IN ('result_downloaded','results_downloaded_all'), person_id, NULL)) AS downloads,
+  count(DISTINCT if(event = 'checkout_started', person_id, NULL)) AS checkouts
+FROM events
+WHERE timestamp >= toDateTime('2026-05-19 00:00:00')
+GROUP BY d ORDER BY d
+""".strip()
+
+# Fields that cannot be recomputed from the event log — persisted day by day.
+PERSIST_KEYS = ["spend_lifetime", "cpl", "signups_meta", "email_open", "email_click",
+                "email_recipients", "aha_rate", "activation_rate", "payment_rate",
+                "paying_customers"]
+PH_COLS = ["landed", "engaged", "modal", "signups", "models", "imports", "tryons", "downloads", "checkouts"]
+
+
+def _money(s):
+    try:
+        return round(float(str(s).replace("$", "").replace(",", "")), 2)
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
+def snapshot_history(env, funnel, meta_live, lifecycle):
+    """Upsert today's row and rewrite history.jsonl. Returns the last 120 days
+    for embedding. PostHog reach is recomputed in full; Meta/Klaviyo/rate
+    fields persist forward."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # 1) PostHog daily reach (full history, authoritative)
+    rows_ph = _hogql(env, DAILY_Q) or []
+    ph = {}
+    for r in rows_ph:
+        if r and r[0]:
+            ph[r[0]] = {PH_COLS[i]: int(r[i + 1]) for i in range(len(PH_COLS))}
+
+    # 2) read previously persisted (non-reconstructable) fields
+    persisted = {}
+    if HISTORY.exists():
+        for line in HISTORY.read_text().splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            d = row.get("date")
+            if d:
+                persisted[d] = {k: row[k] for k in PERSIST_KEYS if row.get(k) is not None}
+
+    # 3) today's persisted fields from the live pulls
+    rates = {}
+    for s in (funnel.get("spine", {}) or {}).get("steps", []):
+        lab = (s.get("label", "") or "").lower()
+        if s.get("aha"):
+            rates["aha_rate"] = s.get("pct")
+        elif s.get("payment"):
+            rates["payment_rate"] = s.get("pct")
+        elif "model" in lab:
+            rates["activation_rate"] = s.get("pct")
+    agg = ((lifecycle.get("liveFlows") or [{}])[0] or {}).get("agg", {})
+    today_fields = {
+        "spend_lifetime": _money(meta_live.get("spend")),
+        "cpl": _money(meta_live.get("cpl")),
+        "signups_meta": meta_live.get("signups"),
+        "email_open": agg.get("open"),
+        "email_click": agg.get("click"),
+        "email_recipients": agg.get("recipients"),
+        "paying_customers": 0,
+        **rates,
+    }
+    persisted[today] = {k: v for k, v in today_fields.items() if v is not None}
+
+    # 4) merge across the union of dates and rewrite
+    dates = sorted(set(ph) | set(persisted))
+    rows = []
+    for d in dates:
+        row = {"date": d}
+        row.update(ph.get(d, {}))
+        row.update(persisted.get(d, {}))
+        rows.append(row)
+    HISTORY.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n")
+    log(f"history: {len(rows)} day(s) ({dates[0] if dates else '-'} → {today})")
+    return {"rows": rows[-120:], "updated": today, "phLive": bool(rows_ph)}
+
+
 # ------------------------------------------------------------------ build ----
 def build():
     content = json.loads(CONTENT.read_text())
@@ -457,6 +557,9 @@ def build():
     lifecycle = fetch_lifecycle(env, content.get("lifecycleCurated", {}))
     funnel_live = funnel.get("source", "").startswith("PostHog · live")
     klaviyo_live = lifecycle.get("source", "").startswith("Klaviyo · live")
+
+    # Daily time-series — snapshot today and rewrite history.jsonl.
+    history = snapshot_history(env, funnel, meta_live, lifecycle)
 
     # Activation = same-user signup -> try-on (the aha), straight from the funnel.
     activation = "~47%"
@@ -493,11 +596,13 @@ def build():
         "meta": meta_live,
         "funnel": funnel,
         "lifecycle": lifecycle,
+        "history": history,
         "refreshedSources": {
             "posthog": posthog_live,
             "meta": signups is not None,
             "funnel": funnel_live,
             "klaviyo": klaviyo_live,
+            "history": history.get("phLive", False),
         },
     }
 

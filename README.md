@@ -12,7 +12,7 @@ link publicly.
 
 | Group | Sections |
 |---|---|
-| Operate | **Command Center** — the daily, ranked action queue (the agent's surface) |
+| Operate | **Command Center** — the daily, ranked action queue (the agent's surface) · **Trends** — daily history, is it moving up or down |
 | Strategy | Overview · Goals & OKRs · ICP & Segments · Positioning · Competition · Battle Card |
 | Brand | Messaging & Perceptions · Brand Voice (with a copy-paste voice card for agents) |
 | Growth | **Funnel** (PostHog) · **Lifecycle** (Klaviyo) · **Channels** · Experiments · Campaigns · Content |
@@ -27,6 +27,22 @@ link publicly.
   opportunities they map to.
 - **Command Center** ties every live funnel leak to the one fix that moves it, ranked by leverage. This is
   the surface a daily routine rewrites: read funnel + campaigns + experiments + lifecycle, re-rank, write back.
+- **Trends** answers "is the work moving the numbers?" — daily volume, conversion rates and cost with
+  week-over-week deltas and sparklines. See "History" below.
+
+## History (the daily time-series)
+
+`build.py` keeps an append-only **`history.jsonl`**, one row per UTC day, committed on every refresh — so
+trends survive and the agent can judge whether each change worked. Why JSONL and not a database: at ~1
+snapshot/day of a few dozen scalars, JSONL is git-native (diffable, append-only), zero-dependency, and
+readable by both the browser (sparklines) and the agent (Python). A database can't be queried client-side
+from a static site and makes poor diffs; a single MD file isn't machine-trendable.
+
+The clever bit: **the PostHog event log is the backfill.** Each run recomputes the full daily funnel-reach
+series from event timestamps (self-healing, no drift), so volume/conversion history is real from launch.
+Only the non-reconstructable fields (Meta cost, email rates, cumulative spine rates) are *persisted forward*
+from the day they first appear. The site embeds the last 120 days into `data.js`; the agent reads
+`history.jsonl` directly.
 
 ## How it works (hybrid data)
 
@@ -105,7 +121,8 @@ Cloudflare Access or a similar auth proxy.
 | `index.html` | The app: CSS + render logic (self-contained) |
 | `content.json` | Curated strategy (human-edited) |
 | `data.js` | Generated. `window.ABLO_OS`. Do not hand-edit. |
-| `build.py` | Generator: content.json + live PostHog/Klaviyo/autopilot → data.js |
+| `history.jsonl` | Generated. Append-only daily time-series (one row per UTC day). Committed each refresh. |
+| `build.py` | Generator: content.json + live PostHog/Klaviyo/autopilot → data.js + history.jsonl |
 | `gen_sections.py` | Seeds the curated funnel/lifecycle/channels/command-center fallbacks |
 | `gen_battlecard.py` | Imports the competitive battlecard workbook into content.json |
 | `refresh.sh` | Refresh wrapper (build + commit + push) |

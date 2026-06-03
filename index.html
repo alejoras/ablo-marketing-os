@@ -299,6 +299,21 @@
     .srchealth { display:flex; gap:18px; flex-wrap:wrap; margin-bottom:26px; }
     .srchealth .s { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); }
     .srchealth .s .how { color:var(--muted); }
+
+    /* ---------- Trends ---------- */
+    .tcard { background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); padding:17px 19px; }
+    .tcard:hover { border-color:var(--line-h); }
+    .tcard .th { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+    .tcard .tlab { font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text2); line-height:1.3; }
+    .tcard .tval { font-size:25px; font-weight:600; letter-spacing:-.025em; margin-top:9px; }
+    .tcard .tval small { font-size:12px; color:var(--muted); font-weight:400; margin-left:2px; }
+    .tdelta { font-size:11px; font-weight:600; display:inline-flex; align-items:center; gap:2px; padding:3px 8px; border-radius:var(--full); white-space:nowrap; flex-shrink:0; }
+    .tdelta.up { color:var(--success); background:rgba(74,222,128,0.12); }
+    .tdelta.down { color:var(--error); background:rgba(248,113,113,0.12); }
+    .tdelta.flat { color:var(--muted); background:var(--glass-h); }
+    .tspark { margin-top:13px; height:34px; }
+    .tspark svg { width:100%; height:34px; display:block; }
+    .tsub { font-size:10.5px; color:var(--muted); margin-top:9px; }
     @media (max-width:900px){ .fbar { grid-template-columns:120px 1fr 74px; } .fbar .lab .ev { display:none; } .spine .srow { grid-template-columns:120px 1fr 64px; } .prep-grid { grid-template-columns:1fr; } }
 
     /* ---------- Responsive ---------- */
@@ -379,6 +394,7 @@
       mail:'M4 5h16v14H4zM4 7l8 6 8-6',
       layers:'M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
       zap:'M13 2L4 14h7l-1 8 10-12h-7z',
+      trend:'M22 7l-8.5 8.5-4-4L2 19M16 7h6v6',
     };
     const svg = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${p.split('M').filter(Boolean).map(d=>'<path d="M'+d+'"/>').join('')}</svg>`;
 
@@ -752,6 +768,91 @@
       );
     };
 
+    S.trends = ()=>{ const hist=(L.history)||{}; const rows=hist.rows||[]; const live=(L.refreshedSources||{}).history;
+      const sum=(arr,k)=>arr.reduce((a,r)=>a+(typeof r[k]==='number'?r[k]:0),0);
+      const last=(k)=>{ for(let i=rows.length-1;i>=0;i--){ if(typeof rows[i][k]==='number') return rows[i][k]; } return null; };
+      // sparkline from a numeric array (nulls dropped); accent stroke, last-point dot
+      function spark(vals){
+        const v=vals.filter(x=>typeof x==='number');
+        if(!v.length) return '';
+        const mn=Math.min(...v), mx=Math.max(...v), rng=(mx-mn)||1, n=v.length;
+        const xy=v.map((x,i)=>[(n===1?50:(i/(n-1))*100), 31-((x-mn)/rng)*28]);
+        const pts=xy.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+        const lp=xy[xy.length-1];
+        return '<svg viewBox="0 0 100 34" preserveAspectRatio="none">'
+          + (n>1?'<polyline fill="none" stroke="var(--accent-dim)" stroke-width="1.5" vector-effect="non-scaling-stroke" points="'+pts+'"/>':'')
+          + '<circle cx="'+lp[0].toFixed(1)+'" cy="'+lp[1].toFixed(1)+'" r="2.4" fill="var(--accent)" vector-effect="non-scaling-stroke"/></svg>';
+      }
+      const deltaChip=(cur,prev,good)=>{
+        if(prev==null||cur==null||prev===0) return h('span',{class:'tdelta flat'},'new');
+        const pct=Math.round((cur-prev)/Math.abs(prev)*100);
+        if(pct===0) return h('span',{class:'tdelta flat'},'0%');
+        const better = good==='neutral'? null : (good==='down' ? pct<0 : pct>0);
+        const cls = better==null?'flat':(better?'up':'down');
+        return h('span',{class:'tdelta '+cls}, (pct>0?'▲ +':'▼ ')+pct+'%');
+      };
+
+      // window helpers (7d vs prior 7d)
+      const L7=rows.slice(-7), P7=rows.slice(-14,-7);
+      function volCard(c){
+        const cur=sum(L7,c.k), prev=sum(P7,c.k);
+        return h('div',{class:'tcard'},
+          h('div',{class:'th'}, h('div',{class:'tlab'}, c.label, c.aha?h('span',{class:'badge-aha',style:'margin-left:6px'},'aha'):c.pay?h('span',{class:'badge-pay',style:'margin-left:6px'},'pay'):null), deltaChip(cur,prev,'up')),
+          h('div',{class:'tval'}, String(cur)),
+          h('div',{class:'tspark',html:spark(rows.map(r=>r[c.k]))}),
+          h('div',{class:'tsub'},'last 7 days · vs '+prev+' prior 7d'));
+      }
+      function rateCard(c){
+        const r7=(rs)=>{ const d=sum(rs,c.den); return d? Math.round(sum(rs,c.num)/d*100):null; };
+        const cur=r7(L7), prev=r7(P7);
+        const series=rows.map((_,i)=>{ const w=rows.slice(Math.max(0,i-6),i+1); const d=sum(w,c.den); return d? sum(w,c.num)/d*100:null; });
+        return h('div',{class:'tcard'},
+          h('div',{class:'th'}, h('div',{class:'tlab'}, c.label), deltaChip(cur,prev,'up')),
+          h('div',{class:'tval'}, (cur!=null?cur:'—'), h('small',{},'%')),
+          h('div',{class:'tspark',html:spark(series)}),
+          h('div',{class:'tsub'},'trailing 7-day rate'));
+      }
+      function snapCard(c){
+        const cur=last(c.k); const series=rows.map(r=>r[c.k]);
+        const nonNull=series.filter(x=>typeof x==='number');
+        const prev=nonNull.length>1?nonNull[nonNull.length-2]:null;
+        const pre=c.fmt==='$'?'$':''; const post=c.fmt==='%'?'%':'';
+        return h('div',{class:'tcard'},
+          h('div',{class:'th'}, h('div',{class:'tlab'}, c.label), deltaChip(cur,prev,c.good)),
+          h('div',{class:'tval'}, cur!=null?(pre+cur+post):'—'),
+          h('div',{class:'tspark',html:spark(series)}),
+          h('div',{class:'tsub'}, nonNull.length<=1?'accumulating daily':'since '+(rows.find(r=>typeof r[c.k]==='number')||{}).date));
+      }
+
+      const VOL=[{k:'signups',label:'New signups',aha:false},{k:'tryons',label:'Try-ons',aha:true},{k:'checkouts',label:'Checkouts',pay:true},{k:'landed',label:'Visitors'},{k:'models',label:'Models generated'},{k:'modal',label:'Signup-modal opens'}];
+      const RATE=[{num:'tryons',den:'signups',label:'Aha rate (signup→try-on)'},{num:'models',den:'signups',label:'Activation (signup→model)'},{num:'checkouts',den:'signups',label:'Payment rate (signup→checkout)'}];
+      const SNAP=[{k:'cpl',label:'Cost per signup',good:'down',fmt:'$'},{k:'spend_lifetime',label:'Lifetime spend',good:'neutral',fmt:'$'},{k:'email_open',label:'Email open rate',good:'up',fmt:'%'}];
+
+      // biggest movers (volume + rate, by |week-over-week %|, needs prior data)
+      const movers=[];
+      VOL.forEach(c=>{ const cur=sum(L7,c.k),prev=sum(P7,c.k); if(prev>0){ movers.push({label:c.label.toLowerCase(),pct:Math.round((cur-prev)/prev*100)}); }});
+      RATE.forEach(c=>{ const cw=sum(L7,c.den),pw=sum(P7,c.den); if(cw&&pw){ const cur=sum(L7,c.num)/cw*100,prev=sum(P7,c.num)/pw*100; if(prev>0) movers.push({label:c.label.split(' (')[0].toLowerCase(),pct:Math.round((cur-prev)/prev*100)}); }});
+      movers.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
+      const moverText = movers.length
+        ? movers.slice(0,3).map(m=>m.label+' '+(m.pct>=0?'up '+m.pct+'%':'down '+Math.abs(m.pct)+'%')).join(', ')+' week-over-week.'
+        : 'Not enough history yet for week-over-week movers; the series fills in daily.';
+
+      return frag(
+        sectionHead('Trends','Is it moving up or down', 'Daily history so the agent (and you) can see whether the work is bending the numbers. Volume and conversion trends are reconstructed from the full PostHog event log since launch; cost, email and rate snapshots accumulate from today forward.'),
+        h('div',{class:'freshness'},
+          h('span',{class:'pill'}, h('span',{class:'dot '+(live?'live':'cached')}), 'History · '+(rows.length||0)+' days'),
+          hist.updated? h('span',{},'Through '+hist.updated):null),
+        h('div',{class:'callout'}, h('div',{class:'tag'},'What moved'), h('p',{html:moverText})),
+        blocktitle('Volume · users reaching each step (7-day totals)'),
+        h('div',{class:'grid g3'}, VOL.map(volCard)),
+        blocktitle('Conversion rates · trailing 7-day'),
+        h('div',{class:'grid g3'}, RATE.map(rateCard)),
+        blocktitle('Cost & lifecycle · daily snapshot'),
+        h('div',{class:'grid g3'}, SNAP.map(snapCard)),
+        h('p',{class:'small',style:'margin-top:20px'},'History is appended to history.jsonl on every build and committed, so the record survives and the daily routine can read it to judge whether each change is working.')
+      );
+    };
+
     S.messaging = ()=>{ const m=D.messaging||{};
       return frag(
         sectionHead('Messaging','Beliefs, pillars, and the words',m.perceptionsNote),
@@ -888,6 +989,7 @@
     const NAV = [
       {group:'Operate', items:[
         {id:'commandcenter',label:'Command Center',icon:I.zap},
+        {id:'trends',label:'Trends',icon:I.trend},
       ]},
       {group:'Strategy', items:[
         {id:'overview',label:'Overview',icon:I.home},

@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T04:35:54.115150+00:00"
+    "updatedISO": "2026-06-03T04:38:10.622118+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -2007,11 +2007,10 @@ window.ABLO_OS = {
         "name": "Studio onboarding coachmarks",
         "status": "Running",
         "flag": "studio-onboarding-coachmarks",
-        "hypothesis": "Tests whether showing the first-run coachmarks (the guided tips on the create-model screen: describe, refine selectors, generate, ready-made model) increases the share of users who generate a model. control = no coachmarks; test = coachmarks shown. 50/50 split, 100% rollout. Exposure fires when a user reaches the create-model step.",
+        "hypothesis": "Tests whether showing the first-run coachmarks (the guided tips on the create-model screen: describe → refine selectors → generate → ready-made model) increases the share of users who generate a model. control = no coachmarks; test = coachmarks shown. 50/50 split, 100% rollout. Exposure fires when a user reaches the create-model step (the flag is read there). Primary metric: model_generated.",
         "metric": "model_generated",
         "started": "May 30, 2026",
-        "url": "https://us.posthog.com/project/419152/experiments/374260",
-        "signal": "Collecting data. Exposures are low (single digits) while paid delivery is paused, so results are not yet conclusive."
+        "url": "https://us.posthog.com/project/419152/experiments/374260"
       }
     ],
     "meta": {
@@ -2410,7 +2409,7 @@ window.ABLO_OS = {
       ]
     },
     "refreshedSources": {
-      "posthog": false,
+      "posthog": true,
       "meta": true,
       "funnel": true,
       "klaviyo": true

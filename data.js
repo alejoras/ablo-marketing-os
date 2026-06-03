@@ -14,7 +14,7 @@ window.ABLO_OS = {
     "endOfJuneGoal": "First paying customer.",
     "updated": "June 3, 2026",
     "sourceNote": "Source of truth: the marketing strategy spine and the Minimum Viable Context. Curated strategy is human-edited; experiments and campaign metrics refresh automatically each week.",
-    "updatedISO": "2026-06-03T04:54:28.946783+00:00"
+    "updatedISO": "2026-06-03T05:03:41.803610+00:00"
   },
   "overview": {
     "elevator": "Self-serve AI on-model imagery for fashion brands. Create an AI model, paste a product URL, get campaign-ready 2K imagery in minutes. It replaces the photoshoot, not one incumbent tool.",
@@ -1859,7 +1859,7 @@ window.ABLO_OS = {
         "sev": "high",
         "title": "Wire the prepared lifecycle emails",
         "owner": "Marketing",
-        "status": "Ready — fastest lever",
+        "status": "Ready, fastest lever",
         "targets": "signup → model · model → try-on",
         "body": "The Activate (A1-A3) and AHA (B1-B3) templates exist but sit in no flow. Build two behavioral flows in Klaviyo (Added-to-List → Activate, Model Generated → AHA). Zero new copy, ships this week."
       },
@@ -1892,12 +1892,13 @@ window.ABLO_OS = {
       },
       {
         "rank": "5",
-        "sev": "med",
+        "sev": "done",
         "title": "Instrument purchase_completed",
         "owner": "Product / Data",
-        "status": "Blocker for revenue truth",
+        "status": "Shipped (PR #37), deploying",
         "targets": "checkout → paid",
-        "body": "No paid-conversion event fires, so true signup→paid and revenue cannot be measured. This blocks the make-or-break number the whole strategy hinges on."
+        "body": "No paid-conversion event fires, so true signup→paid and revenue cannot be measured. This blocks the make-or-break number the whole strategy hinges on.",
+        "done": true
       },
       {
         "rank": "6",

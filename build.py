@@ -481,6 +481,12 @@ def build():
     now = datetime.now(timezone.utc)
     content["meta"]["updated"] = now.strftime("%B %-d, %Y")
     content["meta"]["updatedISO"] = now.isoformat()
+    # Self-improving Command Center: stamp it reviewed on every run so the action
+    # queue always reflects "checked today". Deeper status re-ranking (resolve
+    # done items, surface new leaks) is done by the marketing-os-refresh agent
+    # skill, which reasons over the live funnel/campaigns/experiments/lifecycle.
+    if "commandCenter" in content:
+        content["commandCenter"]["updated"] = content["meta"]["updated"]
     content["live"] = {
         "kpis": kpis,
         "experiments": experiments,
